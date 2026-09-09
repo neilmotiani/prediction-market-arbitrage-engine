@@ -1,0 +1,13 @@
+[
+  {
+    "left_key": "polymarket:inflation",
+    "right_key": "kalshi:inflation-k",
+    "resolution_key": "demo:inflation",
+    "approved_by": "demo-fixture",
+    "evidence": "Synthetic fixtures share the identical December 2026 CPI definition and one-dollar payout. Not a live-market approval.",
+    "same_payout": true,
+    "same_resolution": true,
+    "same_outcome_definition": true,
+    "enabled": true
+  }
+]
