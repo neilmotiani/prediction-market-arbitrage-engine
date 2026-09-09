@@ -195,6 +195,24 @@ class ResearchRuntime:
                 queue.get_nowait()
             queue.put_nowait(event)
 
+    def current_opportunities(self) -> list[Opportunity]:
+        """Revalidate on reads so a stopped feed cannot leave stale executable labels."""
+        result = []
+        for original in self.opportunities:
+            yes, no = original.snapshots
+            op = self.engine.evaluate(
+                yes, no, exposure=self.paper.exposure, free_capital=self.paper.free_capital
+            )
+            op.id, op.timestamp = original.id, original.timestamp
+            if op.status == "executable" and any(
+                self.paper.fingerprint(s) in self.paper.consumed for s in (yes, no)
+            ):
+                op.status = "theoretical"
+                op.rejection_reason = "paper_book_already_consumed"
+                op.execution_score = 0
+            result.append(op)
+        return result
+
     def metrics(self) -> dict[str, Any]:
         elapsed = max(perf_counter() - self.started, 0.001)
         connections = {}
@@ -214,7 +232,9 @@ class ResearchRuntime:
             "uptime_seconds": round(elapsed, 1),
             "markets_monitored": len({s.key for s in self.books.values()}),
             "opportunities_detected": sum(o.gross_edge > 0 for o in self.opportunities),
-            "executable_opportunities": sum(o.status == "executable" for o in self.opportunities),
+            "executable_opportunities": sum(
+                o.status == "executable" for o in self.current_opportunities()
+            ),
             "snapshots_processed": self.updates,
             "checks_total": self.checks,
             "market_updates_per_second": round(self.updates / elapsed, 2),

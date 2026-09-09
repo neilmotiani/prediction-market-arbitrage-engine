@@ -93,7 +93,7 @@ class ArbitrageEngine:
         )
         # Readiness heuristic, not probability of profit or successful settlement.
         op.execution_score = (
-            round(max(0, 1 - max(ages) / self.settings.max_data_age_seconds), 3)
+            round(min(1, max(0, 1 - max(ages) / self.settings.max_data_age_seconds)), 3)
             if not reasons
             else 0
         )

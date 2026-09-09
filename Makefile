@@ -15,6 +15,6 @@ benchmark:
 lint:
 	uv run ruff check backend tests scripts
 	uv run ruff format --check backend tests scripts
-	cd frontend && npm run lint && npm run typecheck
+	cd frontend && npm run lint && npm run typecheck && npm run format:check
 test:
 	uv run pytest --cov=app --cov-report=term-missing

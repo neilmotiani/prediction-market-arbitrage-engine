@@ -13,7 +13,7 @@ from fastapi import (
 from sqlalchemy import select
 
 from app.models.entities import MappingRecord, OpportunityRecord, SnapshotRecord
-from app.schemas.domain import ContractMapping, SimulationRequest
+from app.schemas.domain import ContractMapping, Opportunity, SimulationRequest
 from app.services.market_data import ResearchRuntime
 
 router = APIRouter()
@@ -95,7 +95,7 @@ async def opportunities(
             ).all()
         data = [r.payload for r in records]
     else:
-        data = [o.model_dump(mode="json") for o in rt.opportunities]
+        data = [o.model_dump(mode="json") for o in rt.current_opportunities()]
     return [
         o
         for o in data
@@ -156,10 +156,17 @@ async def simulate(body: SimulationRequest, rt: Runtime) -> dict:
             else:
                 candidates = [
                     o
-                    for o in rt.opportunities
+                    for o in rt.current_opportunities()
                     if o.status == "executable"
                     and (not body.opportunity_id or o.id == body.opportunity_id)
                 ]
+                # A details drawer may outlive a feed tick. Recover its audit record,
+                # then let the provider revalidate fresh books under the same lock.
+                if not candidates and body.opportunity_id:
+                    async with rt.db.sessions() as session:
+                        record = await session.get(OpportunityRecord, body.opportunity_id)
+                    if record is not None:
+                        candidates = [Opportunity.model_validate(record.payload)]
                 candidates.sort(key=lambda o: o.net_edge or 0, reverse=True)
                 if not candidates:
                     raise ValueError("No current executable opportunity matches this request")
@@ -184,7 +191,7 @@ async def opportunity_stream(websocket: WebSocket) -> None:
         await websocket.send_json(
             {
                 "type": "opportunities",
-                "data": [o.model_dump(mode="json") for o in rt.opportunities],
+                "data": [o.model_dump(mode="json") for o in rt.current_opportunities()],
                 "metrics": rt.metrics(),
             }
         )

@@ -1,0 +1,18 @@
+{
+  "measured_at": "2026-09-09T17:44:47.202984+00:00",
+  "python": "3.12.11",
+  "platform": "macOS-15.4.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "scope": "Single-process CPU microbenchmark; normalization, matching, depth-aware evaluation and sizing; no I/O",
+  "iterations": 1000,
+  "snapshots": 12000,
+  "checks": 8000,
+  "book_levels_per_side": 4,
+  "warmup_batches": 100,
+  "elapsed_seconds": 1.659813,
+  "snapshots_per_second": 7229.73,
+  "checks_per_second": 4819.82,
+  "p50_detection_ms": 0.077333,
+  "p95_detection_ms": 0.105377,
+  "mean_detection_ms": 0.079685
+}

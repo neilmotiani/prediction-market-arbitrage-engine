@@ -88,6 +88,8 @@ class PaperExecutionProvider(ExecutionProvider):
     async def execute_order(
         self, opportunity: Opportunity, snapshots: dict[str, MarketSnapshot]
     ) -> dict[str, Any]:
+        if any(t["opportunity_id"] == opportunity.id for t in self.trades):
+            raise ValueError("Opportunity already consumed by a paper fill")
         if opportunity.status != "executable":
             raise ValueError("Opportunity did not pass execution constraints")
         legs = [snapshots.get(s.book_key) for s in opportunity.snapshots]
