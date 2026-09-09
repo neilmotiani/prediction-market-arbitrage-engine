@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 from collections.abc import AsyncIterator
 from contextlib import suppress
 from datetime import UTC, datetime
@@ -13,10 +14,11 @@ from websockets.asyncio.client import connect
 
 from app.config import Settings
 from app.connectors.base import VenueConnector
+from app.connectors.polymarket.discovery import discover
 from app.schemas.domain import Level, MarketSnapshot, now
 
 
-def normalize_book(raw: dict[str, Any], pair: dict[str, str], outcome: str) -> MarketSnapshot:
+def normalize_book(raw: dict[str, Any], pair: dict[str, Any], outcome: str) -> MarketSnapshot:
     if raw.get("market") != pair["market_id"]:
         raise ValueError("CLOB condition ID differs from the configured binary market")
     if str(raw.get("asset_id")) != pair[outcome.lower() + "_token"]:
@@ -33,13 +35,17 @@ def normalize_book(raw: dict[str, Any], pair: dict[str, str], outcome: str) -> M
         bids=tuple(Level.model_validate(x) for x in raw["bids"]),
         asks=tuple(Level.model_validate(x) for x in raw["asks"]),
         resolution_key=pair.get("resolution_key", f"polymarket:{pair['market_id']}"),
-        fee_verified=False,
+        fee_verified=pair.get("fee_schedule") is not None,
+        fee_schedule=pair.get("fee_schedule"),
+        minimum_order_size=pair.get("minimum_order_size", 1),
+        volume=pair.get("volume", 0),
     )
 
 
 class PolymarketConnector(VenueConnector):
     def __init__(self, settings: Settings):
         self.settings = settings
+        self.pairs = settings.polymarket_token_pairs
         for pair in settings.polymarket_token_pairs:
             if not all(pair.get(k) for k in ("market_id", "title", "yes_token", "no_token")):
                 raise ValueError(
@@ -49,7 +55,7 @@ class PolymarketConnector(VenueConnector):
                 raise ValueError("YES and NO tokens must be distinct")
 
     async def fetch(self, client: httpx.AsyncClient) -> list[MarketSnapshot]:
-        async def one(pair: dict[str, str], outcome: str) -> MarketSnapshot:
+        async def one(pair: dict[str, Any], outcome: str) -> MarketSnapshot:
             response = await client.get(
                 "https://clob.polymarket.com/book",
                 params={"token_id": pair[outcome.lower() + "_token"]},
@@ -57,14 +63,36 @@ class PolymarketConnector(VenueConnector):
             response.raise_for_status()
             return normalize_book(response.json(), pair, outcome)
 
-        return list(
-            await asyncio.gather(
-                *(one(p, o) for p in self.settings.polymarket_token_pairs for o in ("YES", "NO"))
-            )
-        )
+        failures: list[Exception] = []
+
+        async def pair_books(pair: dict[str, Any]) -> list[MarketSnapshot]:
+            try:
+                return list(await asyncio.gather(*(one(pair, o) for o in ("YES", "NO"))))
+            except (httpx.HTTPError, ValueError, KeyError) as exc:
+                failures.append(exc)
+                logging.getLogger(__name__).warning(
+                    "book_pair_skipped", extra={"market": pair["market_id"]}
+                )
+                return []
+
+        batches = await asyncio.gather(*(pair_books(p) for p in self.pairs))
+        result = [s for batch in batches for s in batch]
+        if not result and failures:
+            raise failures[0]
+        return result
 
     async def stream(self) -> AsyncIterator[list[MarketSnapshot]]:
         async with httpx.AsyncClient(timeout=10, limits=httpx.Limits(max_connections=8)) as client:
+            if self.settings.live_auto_discover and not self.settings.polymarket_token_pairs:
+                # Periodic REST gives authoritative full books and refreshes the universe
+                # without relying on uninterrupted WebSocket delivery.
+                refreshed = -float("inf")
+                while True:
+                    if monotonic() - refreshed >= self.settings.live_discovery_interval:
+                        self.pairs = await discover(client, self.settings.live_market_limit)
+                        refreshed = monotonic()
+                    yield await self.fetch(client)
+                    await asyncio.sleep(self.settings.poll_interval)
             yield await self.fetch(client)
             if not self.settings.polymarket_websocket:
                 while True:

@@ -52,9 +52,22 @@ class ResearchRuntime:
         self.data_latency_ms = 0.0
         self.connector_factory = connector_factory
         self.connections: dict[str, dict[str, Any]] = {}
+        self.auto_paper_fills = 0
+        self.auto_paper_skips = 0
 
     async def start(self) -> None:
         await self.db.initialize()
+        async with self.db.sessions() as session:
+            marker = await session.get(MetricRecord, "dataset:mode")
+            if marker is None:
+                # Legacy databases were mock runs; do not reuse their capital in live mode.
+                existing = await session.scalar(select(Market.id).limit(1))
+                if existing and self.settings.mode == "live":
+                    raise ValueError("Live mode requires a separate empty database")
+                session.add(MetricRecord(id="dataset:mode", payload={"mode": self.settings.mode}))
+                await session.commit()
+            elif marker.payload["mode"] != self.settings.mode:
+                raise ValueError("Database mode mismatch; use a separate database for live data")
         path = Path(self.settings.mapping_file)
         if await asyncio.to_thread(path.exists):
             self.matcher.mappings = [
@@ -77,7 +90,7 @@ class ResearchRuntime:
             connectors = [MockConnector(self.settings.poll_interval)]
         else:
             connectors = []
-            if self.settings.polymarket_token_pairs:
+            if self.settings.polymarket_token_pairs or self.settings.live_auto_discover:
                 from app.connectors.polymarket.client import PolymarketConnector
 
                 connectors.append(PolymarketConnector(self.settings))
@@ -89,6 +102,44 @@ class ResearchRuntime:
             name = type(connector).__name__
             self.connections[name] = {"state": "connecting", "last_update": None}
             self.tasks.append(asyncio.create_task(self.consume(connector), name=name))
+
+        if self.settings.mode == "live":
+            self.tasks.append(asyncio.create_task(self.settlement_loop(), name="paper-settlement"))
+
+    async def settlement_loop(self) -> None:
+        import httpx
+
+        from app.services.settlement import fetch_resolution
+
+        async with httpx.AsyncClient(timeout=10) as client:
+            while True:
+                try:
+                    keys = {
+                        key
+                        for t in self.paper.trades
+                        if t["status"] == "open"
+                        for key in t["market_keys"]
+                    }
+                    evidence = {}
+                    for key in keys:
+                        result = await fetch_resolution(client, key)
+                        if result is not None:
+                            evidence[key] = result
+                    async with self.lock:
+                        for trade in list(self.paper.trades):
+                            if (
+                                trade["status"] == "open"
+                                and set(trade["market_keys"]) <= evidence.keys()
+                            ):
+                                await self.paper.settle_from_venue(
+                                    trade["id"], {k: evidence[k] for k in trade["market_keys"]}
+                                )
+                except asyncio.CancelledError:
+                    raise
+                except Exception:
+                    self.errors += 1
+                    logger.exception("settlement_poll_error")
+                await asyncio.sleep(60)
 
     async def stop(self) -> None:
         for task in self.tasks:
@@ -124,7 +175,13 @@ class ResearchRuntime:
             raise ValueError("Empty market-data batch")
         async with self.lock:
             stamp = now()
-            updated = {**self.books, **{s.book_key: s for s in batch}}
+            updated = {
+                k: s
+                for k, s in self.books.items()
+                if (stamp - s.received_at).total_seconds()
+                < self.settings.live_discovery_interval * 2
+            }
+            updated.update({s.book_key: s for s in batch})
             start = perf_counter()
             ops = self.engine.scan(
                 list(updated.values()), self.paper.exposure, self.paper.free_capital
@@ -159,10 +216,21 @@ class ResearchRuntime:
                 if self.cycles % 100 == 0:
                     for table in (SnapshotRecord, OpportunityRecord, MetricRecord):
                         await session.execute(
-                            delete(table).where(table.timestamp < stamp - timedelta(days=1))
+                            delete(table).where(
+                                table.timestamp < stamp - timedelta(days=1),
+                                table.id != "dataset:mode",
+                            )
                         )
                 await session.commit()
             self.books, self.opportunities = updated, ops
+            if self.settings.auto_paper_trade:
+                for op in sorted(ops, key=lambda o: o.expected_profit or 0, reverse=True):
+                    if op.status == "executable":
+                        try:
+                            await self.paper.execute_order(op, self.books)
+                            self.auto_paper_fills += 1
+                        except ValueError:
+                            self.auto_paper_skips += 1
             self.cycles += 1
             self.updates += len(batch)
             self.checks += len(ops)
@@ -229,6 +297,11 @@ class ResearchRuntime:
         return {
             "mode": self.settings.mode,
             "execution_provider": "paper",
+            "auto_paper_trade": self.settings.auto_paper_trade,
+            "auto_paper_fills": self.auto_paper_fills,
+            "auto_paper_skips": self.auto_paper_skips,
+            "fee_verified_books": sum(s.fee_verified for s in self.books.values()),
+            "books_monitored": len(self.books),
             "uptime_seconds": round(elapsed, 1),
             "markets_monitored": len({s.key for s in self.books.values()}),
             "opportunities_detected": sum(o.gross_edge > 0 for o in self.opportunities),

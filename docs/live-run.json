@@ -1,0 +1,189 @@
+{
+  "observed_at": "2026-09-09T23:08:05.433993+00:00",
+  "scope": "Public real-time data with paper execution. No synthetic input or forced trade.",
+  "observation_seconds": 10.0,
+  "snapshots_during_observation": 48,
+  "websocket_received": true,
+  "dashboard_http_status": 200,
+  "metrics": {
+    "mode": "live",
+    "execution_provider": "paper",
+    "auto_paper_trade": true,
+    "auto_paper_fills": 0,
+    "auto_paper_skips": 0,
+    "fee_verified_books": 24,
+    "books_monitored": 24,
+    "uptime_seconds": 512.6,
+    "markets_monitored": 12,
+    "opportunities_detected": 0,
+    "executable_opportunities": 0,
+    "snapshots_processed": 3432,
+    "checks_total": 1716,
+    "market_updates_per_second": 6.69,
+    "opportunities_checked_per_second": 3.35,
+    "opportunities_found_total": 1,
+    "rejected_opportunities": 1716,
+    "data_latency_ms": 15587.4,
+    "detection_latency_ms": 10.96,
+    "api_errors": 0,
+    "last_update": "2026-09-09T23:08:01.778397+00:00",
+    "connections": {
+      "PolymarketConnector": {
+        "state": "connected",
+        "last_update": "2026-09-09T23:08:01.778397+00:00"
+      }
+    },
+    "simulated_pnl": "0",
+    "free_capital": "10000",
+    "expected_open_pnl": "0"
+  },
+  "markets": [
+    {
+      "id": "polymarket:0x320a0116959f7573f87212ce61e323438862689cdb4dc5e38b3a9f0fbd1cbed4",
+      "title": "LAPTOP FDV above $1B one day after launch?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0xa526fc837cb8824074152805e508daa44017fd4b0729fe3d6f0fc69aa8cedd13",
+      "title": "LAPTOP FDV above $500M one day after launch?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0x42b633e7acfedf301c4eb85acefc7430f2e76825c1f3324a39a5582d7a26599b",
+      "title": "US x Iran Effective Ceasefire by September 4?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0x5c79dfde05559b79a9cb9f7c4187e4d49632dd042572ae676952f812732591cc",
+      "title": "Strait of Hormuz traffic returns to normal by December 31?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0x607ecc84f1b92e42bbf1e5d855f49d0949111dca5ff1502d8970154a4a34c2f3",
+      "title": "LAPTOP FDV above $250M one day after launch?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0x6123b5cc75c38ba9783f6c8ea260107b546c7d3454a8f9b5280c9921cc39f3d9",
+      "title": "Bitcoin all time high by September 30, 2026?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0x94a5c6ce5f62bada0fc4f3a972961e2ac60bc297d0219a56ecc3ed1617415196",
+      "title": "LAPTOP FDV above $100M one day after launch?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0xc3794a8d3a34d04b9f39773e35c4cecdac89d32eab93e8589d9a6f03e04e9490",
+      "title": "Trump out as President by September 30?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0x7209592f294c2b3a7230ea66a4483ecfe1a57ae79144e5e735654829e00cfc68",
+      "title": "Will Apple release a foldable iPhone before 2027?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0x7971f459be7ba5c3e727fbcd1325d662036dad1bcc64c636ee62b506f014f29b",
+      "title": "LAPTOP FDV above $50M one day after launch?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0x524ce344b80a160c237d91a33efdd8b82468b0dc0d33f60d500f8bf69b80b8bb",
+      "title": "Israel x Iran ceasefire continues through September 30?",
+      "venue": "polymarket"
+    },
+    {
+      "id": "polymarket:0x0f4d95f12e8537ecca25d475f1bdc1747692fb2f809bb66bda5ac9544e06fb61",
+      "title": "Will Israeli forces withdraw from beyond the Litani River by December 31",
+      "venue": "polymarket"
+    }
+  ],
+  "decisions": [
+    {
+      "market": "LAPTOP FDV above $1B one day after launch?",
+      "gross_edge": "-0.02",
+      "net_edge": "-0.070777539139784946236559140",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "LAPTOP FDV above $500M one day after launch?",
+      "gross_edge": "-0.01",
+      "net_edge": "-0.039193020833333333333333333",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "US x Iran Effective Ceasefire by September 4?",
+      "gross_edge": "-0.01",
+      "net_edge": "-0.021381443298969072164948454",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "Strait of Hormuz traffic returns to normal by December 31?",
+      "gross_edge": "-0.01",
+      "net_edge": "-0.012408163265306122448979592",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "LAPTOP FDV above $250M one day after launch?",
+      "gross_edge": "-0.01",
+      "net_edge": "-0.021251443298969072164948454",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "Bitcoin all time high by September 30, 2026?",
+      "gross_edge": "-0.006",
+      "net_edge": "-0.010281102040816326530612245",
+      "status": "rejected",
+      "rejection_reason": "stale_or_future_market_data; no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "LAPTOP FDV above $100M one day after launch?",
+      "gross_edge": "-0.007",
+      "net_edge": "-0.012001573440816326530612245",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "Trump out as President by September 30?",
+      "gross_edge": "-0.001",
+      "net_edge": "-0.005193086868686868686868687",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "Will Apple release a foldable iPhone before 2027?",
+      "gross_edge": "-0.004",
+      "net_edge": "-0.009034297373737373737373737",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "LAPTOP FDV above $50M one day after launch?",
+      "gross_edge": "-0.002",
+      "net_edge": "-0.005561818181818181818181818",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "Israel x Iran ceasefire continues through September 30?",
+      "gross_edge": "-0.01",
+      "net_edge": "-0.013020408163265306122448980",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    },
+    {
+      "market": "Will Israeli forces withdraw from beyond the Litani River by December 31",
+      "gross_edge": "-0.02",
+      "net_edge": "-0.031895833333333333333333333",
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+    }
+  ],
+  "paper_trades_recorded": 0
+}

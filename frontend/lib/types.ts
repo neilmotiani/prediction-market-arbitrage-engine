@@ -10,6 +10,12 @@ export type Snapshot = {
   bids: Level[];
   asks: Level[];
   liquidity: string;
+  fee_schedule?: {
+    formula: string;
+    rate: string;
+    source: string;
+    verified_at: string;
+  } | null;
 };
 export type Estimate = {
   fees: string;
@@ -68,6 +74,10 @@ export type Trade = {
 };
 export type Metrics = {
   mode: string;
+  auto_paper_trade: boolean;
+  auto_paper_fills: number;
+  fee_verified_books: number;
+  books_monitored: number;
   markets_monitored: number;
   opportunities_detected: number;
   executable_opportunities: number;

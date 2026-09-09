@@ -4,8 +4,8 @@ Local environment: macOS 15.4.1 arm64, Python 3.12.11, Node 22.19, Docker via Or
 
 ## Verified
 
-- 44 passing tests: quant, order-book, cost, matching, risk, adapter, API/WebSocket, persistence, paper settlement, concurrent execution, stale reads, and commit-failure rollback.
-- Backend statement coverage: 90% overall; arbitrage 97%, order book 96%, cost model and sizing 100%. Two upstream TestClient deprecation warnings are present.
+- 59 passing tests: quant, order-book, cost, matching, risk, adapter, API/WebSocket, persistence, paper settlement, concurrent execution, stale reads, and commit-failure rollback.
+- Backend statement coverage: 89% overall; arbitrage 97%, order book 96%, cost model and sizing 100%. Two upstream TestClient deprecation warnings are present.
 - Ruff lint/format, ESLint, TypeScript, Prettier, and Next.js production compilation.
 - `docker compose up --build -d --wait --wait-timeout 180`: PostgreSQL, backend, and frontend started successfully.
 - PostgreSQL retained the initial smoke-test trade through the final backend container replacement; both smoke-test settlements were present in SQL.
@@ -31,3 +31,7 @@ Open http://localhost:3000 and verify:
 ## Reproducible scenario evidence
 
 `make demo-report` captures all eight scan decisions, executes both eligible pairs, supplies mock resolutions, rejects a duplicate, and reloads the persisted ledger in an isolated SQLite database. See [DEMO_RESULTS.md](DEMO_RESULTS.md) and [demo-run.json](demo-run.json) for the recorded run. This is synthetic functional validation, not a historical backtest.
+
+## Live paper workspace
+
+The live Compose override built and started successfully with an isolated PostgreSQL volume. `scripts/live_report.py` verified 12 discovered Polymarket markets, 24 non-synthetic books with fee metadata, increasing counters, an application WebSocket update, and dashboard HTTP 200. See [LIVE_RUN.md](LIVE_RUN.md). New offline tests cover fee share deductions, live fee freshness, discovery validation, automatic paper execution, normalized-book deduplication, database mode isolation, and final venue settlement evidence.

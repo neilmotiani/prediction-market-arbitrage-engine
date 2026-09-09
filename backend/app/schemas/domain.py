@@ -19,6 +19,14 @@ class Level(BaseModel):
     size: Decimal = Field(gt=0, allow_inf_nan=False)
 
 
+class FeeSchedule(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    formula: Literal["polymarket_shares", "zero"]
+    rate: Decimal = Field(ge=0, lt=1, allow_inf_nan=False)
+    verified_at: AwareDatetime = Field(default_factory=now)
+    source: str
+
+
 class MarketSnapshot(BaseModel):
     model_config = ConfigDict(frozen=True)
     venue: str
@@ -33,6 +41,8 @@ class MarketSnapshot(BaseModel):
     volume: Decimal = Field(default=ZERO, ge=0, allow_inf_nan=False)
     resolution_key: str = ""
     fee_verified: bool = True
+    fee_schedule: FeeSchedule | None = None
+    minimum_order_size: Decimal = Field(default=Decimal("1"), gt=0)
 
     @computed_field
     @property

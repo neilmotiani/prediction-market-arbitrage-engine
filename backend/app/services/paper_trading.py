@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from decimal import Decimal
+from hashlib import sha256
 from typing import Any
 from uuid import uuid4
 
@@ -7,6 +9,7 @@ from sqlalchemy import select
 
 from app.database.session import Database
 from app.models.entities import TradeRecord
+from app.models.orderbook import OrderBook
 from app.schemas.domain import ZERO, MarketSnapshot, Opportunity, now
 from app.services.arbitrage import ArbitrageEngine
 
@@ -45,6 +48,13 @@ class PaperExecutionProvider(ExecutionProvider):
 
     @staticmethod
     def fingerprint(snapshot: MarketSnapshot) -> str:
+        if snapshot.timestamp_source != "synthetic":
+            # Receipt time alone is not evidence of replenished liquidity.
+            levels = [
+                (str(x.price.normalize()), str(x.size.normalize()))
+                for x in OrderBook(snapshot).asks
+            ]
+            return f"{snapshot.book_key}:{sha256(repr(levels).encode()).hexdigest()}"
         return f"{snapshot.book_key}:{snapshot.timestamp.isoformat()}"
 
     @property
@@ -100,6 +110,13 @@ class PaperExecutionProvider(ExecutionProvider):
         fingerprints = [self.fingerprint(s) for s in (yes, no)]
         if any(f in self.consumed for f in fingerprints):
             raise ValueError("Book already consumed by a paper fill; await fresh snapshots")
+        if self.engine.settings.mode == "live" and any(
+            set(t["market_keys"]) & {yes.key, no.key}
+            and (now() - datetime.fromisoformat(t["timestamp"])).total_seconds()
+            < self.engine.settings.live_paper_cooldown_seconds
+            for t in self.trades
+        ):
+            raise ValueError("Live paper market cooldown")
         current = self.engine.evaluate(
             yes, no, exposure=self.exposure, free_capital=self.free_capital
         )
@@ -109,6 +126,8 @@ class PaperExecutionProvider(ExecutionProvider):
         cost = sum((e.total_cost for e in current.estimates), ZERO)
         trade = {
             "id": str(uuid4()),
+            "data_mode": self.engine.settings.mode,
+            "settlement_source": None,
             "opportunity_id": opportunity.id,
             "timestamp": now().isoformat(),
             "market": current.market,
@@ -130,6 +149,7 @@ class PaperExecutionProvider(ExecutionProvider):
                     "status": "filled",
                     "quantity": str(quantity),
                     "estimate": estimate.model_dump(mode="json"),
+                    "snapshot": s.model_dump(mode="json"),
                 }
                 for s, estimate in zip((yes, no), current.estimates, strict=True)
             ],
@@ -144,6 +164,23 @@ class PaperExecutionProvider(ExecutionProvider):
     async def settle(self, trade_id: str, resolutions: dict[str, str]) -> dict[str, Any]:
         if self.engine.settings.mode != "mock":
             raise ValueError("Mock resolution is only available in MODE=mock")
+        return await self._settle(trade_id, resolutions, "mock", {})
+
+    async def settle_from_venue(self, trade_id: str, evidence: dict[str, Any]) -> dict[str, Any]:
+        from app.services.settlement import final_resolution
+
+        resolutions = {}
+        for key, item in evidence.items():
+            venue, condition = key.split(":", 1)
+            outcome = final_resolution(item["gamma"], item["clob"], condition)
+            if venue != "polymarket" or outcome is None:
+                raise ValueError("Resolution evidence is not final")
+            resolutions[key] = outcome
+        return await self._settle(trade_id, resolutions, "venue", evidence)
+
+    async def _settle(
+        self, trade_id: str, resolutions: dict[str, str], source: str, evidence: dict[str, Any]
+    ) -> dict[str, Any]:
         original = next((t for t in self.trades if t["id"] == trade_id), None)
         if original is None:
             raise ValueError("Unknown trade")
@@ -165,6 +202,8 @@ class PaperExecutionProvider(ExecutionProvider):
             **original,
             "status": "settled",
             "resolutions": resolutions,
+            "settlement_source": source,
+            "settlement_evidence": evidence,
             "settled_at": now().isoformat(),
             "realized_pnl": str(payout - Decimal(original["total_cost"])),
         }

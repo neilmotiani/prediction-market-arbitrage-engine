@@ -51,6 +51,20 @@ export function OpportunityDrawer({
                         : `${(Number(s.best_ask) * 100).toFixed(2)}¢`}
                     </strong>
                     <span>{s.venue}</span>
+                    {s.fee_schedule && (
+                      <small>
+                        <a
+                          href={s.fee_schedule.source}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Fee metadata ·{" "}
+                          {s.fee_schedule.formula === "zero"
+                            ? "fee-free"
+                            : `rate ${s.fee_schedule.rate}`}
+                        </a>
+                      </small>
+                    )}
                     <small>
                       Walked average:{" "}
                       {op.estimates[i]?.fill.average_price
@@ -69,7 +83,7 @@ export function OpportunityDrawer({
                   ["Trading fees", `− ${pct(op.estimated_fees)}`],
                   ["Book slippage", `− ${pct(op.estimated_slippage)}`],
                   ["Network + latency reserve", `− ${pct(op.execution_costs)}`],
-                  ["Net executable edge", pct(op.net_edge)],
+                  ["Net edge after modeled costs", pct(op.net_edge)],
                 ].map(([k, v]) => (
                   <div key={k}>
                     <span>{k}</span>

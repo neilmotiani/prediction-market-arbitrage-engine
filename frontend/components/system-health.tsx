@@ -43,6 +43,11 @@ export function SystemHealth({
       <div className="system-grid">
         {[
           ["Snapshots processed", metrics?.snapshots_processed],
+          ["Automatic paper fills (session)", metrics?.auto_paper_fills],
+          [
+            "Books with fee metadata",
+            `${metrics?.fee_verified_books ?? 0}/${metrics?.books_monitored ?? 0}`,
+          ],
           ["Arbitrage checks", metrics?.checks_total],
           ["Rejected checks", metrics?.rejected_opportunities],
           ["Data age on receipt", `${metrics?.data_latency_ms ?? "—"} ms`],

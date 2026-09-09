@@ -4,7 +4,7 @@
 
 A full-stack quantitative engineering project built with **Python, FastAPI, PostgreSQL, and Next.js**. It evaluates whether prediction-market price discrepancies survive fees, available liquidity, slippage, and capital constraints, then records the execution decision and simulated fills for inspection.
 
-[Recorded demo](docs/DEMO_RESULTS.md) · [Architecture](ARCHITECTURE.md) · [Execution model](docs/EXECUTION_MODEL.md) · [Validation](docs/VALIDATION.md)
+[Live observation](docs/LIVE_RUN.md) · [Recorded demo](docs/DEMO_RESULTS.md) · [Architecture](ARCHITECTURE.md) · [Execution model](docs/EXECUTION_MODEL.md) · [Validation](docs/VALIDATION.md)
 
 ## Engineering results
 
@@ -12,11 +12,11 @@ A full-stack quantitative engineering project built with **Python, FastAPI, Post
 | --- | --- |
 | Research-path throughput | **7,230 snapshots/s · 4,820 arbitrage checks/s** |
 | Detection latency | **0.077 ms p50 · 0.105 ms p95** per pair |
-| Automated verification | **44 passing tests · 90% backend statement coverage** |
+| Automated verification | **59 passing tests · 89% backend statement coverage** |
 | Full-stack integration | Docker Compose build/start, API data, paper fills, settlement, and PostgreSQL persistence verified |
 | Public data connectivity | Polymarket REST + WebSocket refresh and Kalshi REST smoke-tested |
 
-Performance figures are from a **local CPU microbenchmark**, not end-to-end venue throughput: 12,000 JSON snapshots and 8,000 checks on macOS arm64 / Python 3.12.11, measured September 9, 2026. Network, database, and browser I/O are excluded. [Raw benchmark and methodology](docs/benchmark.json).
+Performance figures are the **mock-path baseline from a local CPU microbenchmark**, not end-to-end venue throughput: 12,000 JSON snapshots and 8,000 checks on macOS arm64 / Python 3.12.11, measured September 9, 2026. Network, database, and browser I/O are excluded. [Raw benchmark and methodology](docs/benchmark.json).
 
 ## Recorded demo: from quotes to execution decisions
 
@@ -93,6 +93,18 @@ Open **http://localhost:3000** for the dashboard and **http://localhost:8000/doc
 
 The default synthetic feed updates every three seconds and periodically closes profitable windows. Inspect an executable pair, choose **Run paper simulation**, then open **Paper portfolio → Resolve YES** to record mock settlement. `MODE=live` changes the data source only; **real-money execution is not implemented**.
 
+### Run real data with automatic simulated trades
+
+```bash
+make live
+```
+
+The same dashboard now monitors **real Polymarket order books** and automatically records paper fills only when depth, market-specific fees, freshness, and capital checks pass. It uses a separate persistent ledger, preserves your mock results, and requires no credentials. Final venue resolutions settle supported paper positions; no real orders are sent.
+
+A recorded live observation processed **3,432 snapshots and 1,716 checks across 12 markets** over approximately 8.5 minutes. One positive gross-edge observation failed execution constraints; **zero paper trades** were placed. This demonstrates real ingestion and rejection logic, not profitable live performance. [Observed inputs and metrics](docs/live-run.json) · [Run details](docs/LIVE_RUN.md).
+
+Docker runs in the background; the computer must stay awake and connected. [Live operation, configuration, and limitations](docs/LIVE_DATA.md).
+
 ### Reproduce the recorded results
 
 With Python 3.12 and [uv](https://docs.astral.sh/uv/) installed:
@@ -123,11 +135,11 @@ For matching YES/NO contracts, the combined settlement is $1 per pair. Both legs
 ## Scope and tradeoffs
 
 - **Research, not live trading:** paper fills assume atomic paired execution. Real venues introduce leg risk, queue competition, transfer constraints, and potentially different settlements. Mock P&L includes modeled costs, not actual financial transactions.
-- **Live data fails closed:** adapters fetch public books, but unverified market-specific fee schedules block executable classifications. Human-reviewed mappings attest to settlement equivalence; title similarity alone is insufficient.
+- **Live data with paper execution:** the live preset discovers Polymarket contracts, verifies market-specific fee metadata, simulates qualifying pairs, and polls final resolutions. Unsupported fee schedules block executable classifications. Human-reviewed mappings attest to settlement equivalence; title similarity alone is insufficient.
 - **Single-worker local deployment:** the execution lock and exposure ledger are process-owned. Authentication, distributed transaction locking, and schema migrations are required before a shared production deployment.
 - **Verification scope:** automated tests and full-stack HTTP/database checks passed. Browser visual and interaction QA remains outstanding; see the [validation record](docs/VALIDATION.md).
 
-Next steps include verified market-specific fees, sequenced book-delta reconciliation, historical replay/backtesting, independent leg-fill modeling, and a dedicated execution service with transactional portfolio locking.
+Next steps include Kalshi market-specific fees, sequenced book-delta reconciliation, historical replay/backtesting, independent leg-fill modeling, and a dedicated execution service with transactional portfolio locking.
 
 <details>
 <summary>Project summary</summary>

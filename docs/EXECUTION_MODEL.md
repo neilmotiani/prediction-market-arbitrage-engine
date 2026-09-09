@@ -14,7 +14,7 @@ For 50 shares at $0.45 and 50 at $0.50, a purchase of 80 shares uses 50 at $0.45
 - Latency reserve: `filled_size * LATENCY_BUFFER_BPS / 10000` per leg.
 - Total modeled outlay = notional + fees + network + latency reserve. Slippage is already inside notional.
 
-Live snapshots mark fees unverified and fail closed. The two policies above are illustrative assumptions used to exercise the demo, not current universal venue fee schedules. Real execution is absent.
+The two policies above are mock-mode assumptions, not universal venue fees. Automatically discovered live Polymarket books use the verified metadata model below. Other live feeds with unverified fees fail closed. Real execution is absent.
 
 ## Risk and sizing
 
@@ -31,3 +31,11 @@ Orders are immediate fill-or-kill paired simulations. There is no resting queue 
 Settlement requires explicit mock resolutions for every venue market in a trade. Payout is computed order by order. Modeled network and latency reserves are treated as spent for conservative simulated realized P&L; there is no actual-money accounting claim. A repeated settlement is rejected. Open positions and settled P&L restore from PostgreSQL after restart.
 
 Real markets introduce adverse selection, competition, partial fills, independently resolving venues, collateral/transfer constraints, and non-atomic legs. These are documented limits, not hidden inside a high confidence score.
+
+## Live Polymarket fee model
+
+Automatically discovered contracts attach a time-stamped Gamma fee schedule and source URL. The supported quadratic fee is `gross_quantity * rate * p * (1-p)`. Buy fees are collected in shares, so a gross book level of `C` shares delivers `C * (1 - rate*(1-p))` net shares. The execution model walks those net capacities. For `q` net shares at one price, cash required is `q*p / (1 - rate*(1-p))`.
+
+The estimate splits that cash into net-share notional `q*p` and the additional fee/gross-up reserve. Reported fill quantities and level quantities are **net deliverable shares** in this live model; the original venue snapshot is stored alongside each order so gross depth remains auditable. The aggregate reserve rounds upward to $0.00001. This is a conservative continuous-share estimate, not an exact reproduction of venue per-match rounding, minimum cash order increments, or queue fills. Mock economics are unchanged.
+
+Live book fingerprints aggregate equal-price asks and normalize decimal representation. Identical consumed depth remains unavailable across restarts, even if receipt timestamps change. A per-market cooldown guards rapid changed-book reuse. Live settlement uses stored final venue evidence; unsupported or ambiguous outcomes do not release capital automatically.

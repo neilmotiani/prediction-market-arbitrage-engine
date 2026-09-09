@@ -5,6 +5,7 @@ import {
   ChevronDown,
   FlaskConical,
   Layers3,
+  Radio,
   Search,
   ShieldCheck,
   Terminal,
@@ -204,7 +205,9 @@ export default function Dashboard() {
                 {view === "overview"
                   ? "Find the edge. Account for the execution."
                   : view === "trades"
-                    ? "Paired fills, reserved capital, and explicit mock settlement."
+                    ? metrics?.mode === "live"
+                      ? "Real market books, simulated fills, and reserved research capital."
+                      : "Paired fills, reserved capital, and explicit mock settlement."
                     : "Market data, detection throughput, and connector diagnostics."}
               </p>
             </div>
@@ -222,6 +225,20 @@ export default function Dashboard() {
             <div className="error-banner" role="alert">
               API unavailable: {error}. Check the backend on {API}. Retrying
               automatically.
+            </div>
+          )}
+          {metrics?.mode === "live" && (
+            <div className="notice" role="status">
+              <Radio size={16} />
+              <span>
+                LIVE MARKET DATA ·{" "}
+                {metrics.auto_paper_trade
+                  ? "Automatic paper trading active"
+                  : "Manual paper trading"}{" "}
+                · {metrics.fee_verified_books}/{metrics.books_monitored} books
+                with verified fee metadata. Trades appear only when real quotes
+                pass all execution checks.
+              </span>
             </div>
           )}
           {notice && (
@@ -394,8 +411,9 @@ export default function Dashboard() {
                   <strong>{money(metrics?.free_capital)}</strong>
                 </div>
                 <p>
-                  Expected P&L assumes matching $1 settlement. Resolve YES
-                  applies a synthetic YES outcome to every venue leg in a trade.
+                  {metrics?.mode === "live"
+                    ? "Expected P&L is a simulation estimate. Capital stays reserved until a verified venue resolution. No real orders are sent."
+                    : "Expected P&L assumes matching $1 settlement. Resolve YES applies a synthetic YES outcome to every venue leg in a trade."}
                 </p>
               </div>
               <section className="panel">

@@ -30,3 +30,8 @@ class Settings(BaseSettings):
     kalshi_tickers: list[str] = []
     kalshi_resolution_keys: dict[str, str] = {}
     polymarket_websocket: bool = True
+    live_auto_discover: bool = False
+    live_market_limit: int = Field(default=12, ge=1, le=50)
+    live_discovery_interval: float = Field(default=300, ge=30)
+    auto_paper_trade: bool = False
+    live_paper_cooldown_seconds: float = Field(default=60, ge=1)

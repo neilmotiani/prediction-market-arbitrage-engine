@@ -1,39 +1,62 @@
-# Read-only live data
+# Real market data, simulated trades
 
-`MODE=mock` works offline. `MODE=live` starts only explicitly configured venue feeds; an empty configuration reports a healthy API with `feed_ready=false`. It never silently substitutes synthetic observations.
+## Start the live workspace
 
-## Polymarket
-
-Discover binary markets using the [Gamma markets API](https://docs.polymarket.com/market-data/discover-markets). Inspect `outcomes`, `conditionId`, and `clobTokenIds`; confirm that the tokens truly represent exhaustive YES/NO outcomes for the same condition. Multi-outcome and negative-risk conversions are outside this model.
-
-```dotenv
-MODE=live
-POLYMARKET_TOKEN_PAIRS=[{"market_id":"<conditionId>","title":"<question>","yes_token":"<Yes token id>","no_token":"<No token id>","resolution_key":"<reviewed settlement definition>"}]
-POLYMARKET_WEBSOCKET=true
+```bash
+make live
 ```
 
-The connector fetches public CLOB `/book?token_id=...` data, validates returned condition/token identities, and preserves venue timestamps. A public market WebSocket subscribes to configured assets and sends the documented application heartbeat. Book/price events trigger throttled **full REST refreshes**; it does not pretend to safely reconstruct depth from an unsequenced delta stream. Periodic refreshes continue on an otherwise idle connected socket. Set `POLYMARKET_WEBSOCKET=false` for explicit REST polling if a network blocks WebSockets.
+Open http://localhost:3000. The banner reads **LIVE MARKET DATA · Automatic paper trading active**. No wallet, account credentials, or funds are required. The only execution implementation is `PaperExecutionProvider`.
 
-[Official real-time protocol](https://docs.polymarket.com/market-data/realtime-data) · [Official price/book concepts](https://docs.polymarket.com/market-data/prices-order-books).
+This command builds and starts Docker services in the background using `docker-compose.live.yml`. It creates a separate `postgres-live-data` volume and `arbitrage_live` database. Your mock `postgres-data` volume is preserved. Database mode markers reject accidental mixing of mock and live ledgers.
 
-## Kalshi
-
-```dotenv
-MODE=live
-KALSHI_TICKERS=["<active market ticker>"]
-KALSHI_RESOLUTION_KEYS={"<active market ticker>":"<reviewed settlement definition>"}
+```bash
+make live-stop                  # stop without deleting data
+make live                       # resume the live workspace
+# Switch back to your preserved mock workspace:
+docker compose up --build -d
 ```
 
-The adapter attempts unauthenticated GET market metadata and order books at `https://external-api.kalshi.com/trade-api/v2`. Current `orderbook_fp.yes_dollars/no_dollars` fixed-point strings and legacy integer-cent books are supported. YES ask = 1 − NO bid, and vice versa, with the opposite bid's size preserved. The API supplies bid books, not independent ask arrays. [Official order-book reference](https://docs.kalshi.com/api-reference/market/get-market-orderbook).
+The two workspaces use the same local ports and run one at a time. Containers restart after process failures and Docker restarts. Your computer must remain awake with Docker running and internet access; this is a local service, not a cloud deployment. Do not use `down -v` if you want to preserve research history.
 
-Kalshi snapshots use receipt time because the supported response lacks an authoritative book timestamp. This bounds local age, not upstream quote age. Availability or authentication requirements can change; 401/403/429 responses appear as connector errors with backoff. The project does not implement authenticated Kalshi WebSockets or trading credentials.
+## Discovery and ingestion
 
-## Cross-venue review
+The live preset discovers up to 12 ordinary binary Polymarket contracts from the 100 markets ranked by reported 24-hour volume. Every five minutes it refreshes that universe. It requires explicit active/open/order-book-enabled status, distinct YES/NO tokens, and excludes negative-risk markets. Each candidate is checked against the CLOB condition ID, token identities, order acceptance, and minimum order size. This is a sampled universe, not coverage of the entire venue.
 
-Configure the same resolution key on truly equivalent contracts, then post a mapping with a named reviewer, evidence, and explicit same-payout / same-resolution / same-outcome attestations. The API requires both monitored contracts and matching configured keys. JSON mappings in `docs/contract-mappings.json` are synthetic fixtures only and never approve real contracts.
+Full public REST books refresh approximately every three seconds plus request/processing time, with bounded HTTP connections. A failed pair is omitted without discarding other valid pairs; complete feed failure triggers exponential backoff. Venue timestamps are preserved. A fresh HTTP response does **not** reset an old quote's timestamp. Stale or asynchronous legs remain blocked. Old universe entries expire from the in-memory monitor after ten minutes without updates; raw historical books and scan records have 24-hour retention.
 
-## Fee safety and verification
+The configured-token adapter still supports WebSocket-triggered full REST refreshes. Automatic discovery deliberately uses periodic REST, avoiding unsafe reconstruction from missed book deltas. The dashboard receives updates over the application's WebSocket in either case.
 
-Live data always sets `fee_verified=false`. Therefore a live gross discrepancy remains theoretical with `unverified_live_fee_schedule`, even if an illustrative net calculation is positive. Adopting live fees requires a market-specific verified fee provider and tests, not merely switching an environment flag. No real-money provider exists.
+## Market-specific costs
 
-Run `uv run python scripts/live_smoke.py` for optional public discovery, REST parsing, and Polymarket WebSocket/refresh verification. This is excluded from offline CI. The local implementation run successfully retrieved both venues' public books and a Polymarket WebSocket-triggered refresh; that observation is not a guarantee of future access.
+Discovery reads Gamma's `feesEnabled` and `feeSchedule`. Only an explicit fee-free flag or a recognized rate/exponent/taker-only schedule qualifies as verified metadata. Missing or unsupported schedules block execution. Fee metadata older than twice the discovery interval also blocks execution. The legacy CLOB `base_fee` field is **not** interpreted as a universal basis-point charge.
+
+For Polymarket buys, the model accounts for fees collected in shares by walking net deliverable depth and reserving the cash required to buy enough gross shares for equal net YES/NO quantities. See [the execution model](EXECUTION_MODEL.md). Network and latency reserves remain configurable conservative research assumptions.
+
+Sources: [market metadata](https://docs.polymarket.com/market-data/market-details), [fee formula](https://docs.polymarket.com/trading/fees), [fee collection in shares](https://help.polymarket.com/en/articles/13364471-maker-rebates-program).
+
+## Automatic paper execution and settlement
+
+After each scan, executable pairs are ranked by expected dollar profit and revalidated under the execution lock against current books, available cash, and market exposure. Defaults are $10,000 research capital, $100 maximum per pair, $500 per market, and a $0.005 minimum net edge per paired share. The live preset enables automatic simulation; `AUTO_PAPER_TRADE=false` retains manual execution when configured outside the preset.
+
+Book fingerprints use normalized ask prices and quantities, not receipt times. An identical previously consumed book cannot be reused, even after a restart. A 60-second per-market cooldown additionally limits repeated fills on changing books. These are conservative liquidity safeguards, not a market-impact model. Paired execution remains an atomic simulation; no live orders are submitted.
+
+Open positions reserve capital. A separate one-minute poll settles supported Polymarket positions only when Gamma reports a resolved, closed condition and CLOB reports the same closed condition with exactly one winning YES/NO token. It stores resolution evidence with each settlement. Proposed, ambiguous, cancelled/nonbinary, or unsupported resolutions remain pending. The API's mock resolution action is disabled in live mode. Simulated realized P&L is not account earnings.
+
+No trades is a valid result: there must be positive edge **after** fees, depth, slippage, freshness, liquidity, and capital checks. Do not expect the deliberately profitable synthetic demo to predict live trading frequency or returns.
+
+## Optional manually configured feeds
+
+For a custom deployment, set `MODE=live` and a separate `DATABASE_URL`. Enable `LIVE_AUTO_DISCOVER=true`, or explicitly configure `POLYMARKET_TOKEN_PAIRS` / `KALSHI_TICKERS` as shown in `.env.example`. An empty configuration with discovery disabled reports `feed_ready=false`; it never substitutes mock data.
+
+Explicit Polymarket pairs and Kalshi tickers remain read-only research feeds with unverified fees and therefore cannot execute paper trades. Kalshi supports current fixed-point and legacy cent order books, reconstructing asks from opposite outcome bids. Kalshi receipt timestamps do not establish upstream quote freshness. Authenticated venue sockets and real execution are absent.
+
+Live cross-venue execution requires independent review of settlement definitions and a supported fee provider for each leg. The bundled mappings apply only to synthetic fixtures and never approve discovered live contracts.
+
+## Reproduce a live observation
+
+```bash
+uv run python scripts/live_report.py
+```
+
+This verifies real snapshot provenance, increasing ingestion counters, a WebSocket message, and dashboard HTTP availability, then writes `docs/live-run.json`. It does not inject opportunities or force a trade. See [the recorded observation](LIVE_RUN.md). HTTP/build checks do not substitute for browser interaction testing.

@@ -20,3 +20,9 @@ lint:
 	cd frontend && npm run lint && npm run typecheck && npm run format:check
 test:
 	uv run pytest --cov=app --cov-report=term-missing
+
+.PHONY: live live-stop
+live:
+	docker compose -f docker-compose.yml -f docker-compose.live.yml up --build -d
+live-stop:
+	docker compose -f docker-compose.yml -f docker-compose.live.yml stop

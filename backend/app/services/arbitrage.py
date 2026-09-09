@@ -49,6 +49,18 @@ class ArbitrageEngine:
             reasons.append("asynchronous_legs")
         if not all(b.fee_verified for b in (yes, no)):
             reasons.append("unverified_live_fee_schedule")
+        if self.settings.mode == "live":
+            if any(b.timestamp_source == "synthetic" for b in (yes, no)):
+                reasons.append("synthetic_data_in_live_mode")
+            if any(b.fee_schedule is None for b in (yes, no)):
+                reasons.append("missing_live_fee_metadata")
+            elif any(
+                not -1
+                <= (now() - b.fee_schedule.verified_at).total_seconds()
+                <= self.settings.live_discovery_interval * 2
+                for b in (yes, no)
+            ):
+                reasons.append("stale_live_fee_metadata")
         if any(b.spread() is not None and b.spread() < 0 for b in books):
             reasons.append("crossed_order_book")
         if yes.best_ask is None or no.best_ask is None:
@@ -67,6 +79,8 @@ class ArbitrageEngine:
             op.rejection_reason = "; ".join(reasons + ["capital_limit"])
             op.status = "theoretical" if op.gross_edge > 0 else "rejected"
             return op
+        if any(size < b.minimum_order_size for b in (yes, no)):
+            reasons.append("minimum_order_size")
         estimates = [self.execution.estimate(b, size) for b in books]
         op.estimates = estimates
         op.available_size = min(e.fill.filled_size for e in estimates)

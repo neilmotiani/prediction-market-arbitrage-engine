@@ -1,0 +1,24 @@
+# Separate persistent ledger: the mock postgres-data volume remains untouched.
+services:
+  db:
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: arbitrage_live
+    volumes:
+      - postgres-live-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U research -d arbitrage_live"]
+  backend:
+    restart: unless-stopped
+    environment:
+      MODE: live
+      DATABASE_URL: postgresql+asyncpg://research:research@db:5432/arbitrage_live
+      LIVE_AUTO_DISCOVER: "true"
+      LIVE_MARKET_LIMIT: "12"
+      AUTO_PAPER_TRADE: "true"
+      POLYMARKET_TOKEN_PAIRS: "[]"
+      KALSHI_TICKERS: "[]"
+  frontend:
+    restart: unless-stopped
+volumes:
+  postgres-live-data:
