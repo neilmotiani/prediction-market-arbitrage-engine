@@ -28,3 +28,5 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000"]
     polymarket_token_pairs: list[dict[str, str]] = []
     kalshi_tickers: list[str] = []
+    kalshi_resolution_keys: dict[str, str] = {}
+    polymarket_websocket: bool = True
