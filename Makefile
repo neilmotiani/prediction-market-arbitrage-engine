@@ -1,4 +1,4 @@
-.PHONY: dev test backend frontend mock-data benchmark lint install
+.PHONY: dev test backend frontend mock-data demo-report benchmark lint install
 install:
 	uv sync --frozen
 	cd frontend && npm ci
@@ -10,6 +10,8 @@ frontend:
 	cd frontend && npm run dev
 mock-data:
 	uv run python scripts/demo.py
+demo-report:
+	uv run python scripts/demo_report.py
 benchmark:
 	uv run python scripts/benchmark.py
 lint:

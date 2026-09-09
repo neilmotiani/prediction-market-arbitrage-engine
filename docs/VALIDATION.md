@@ -27,3 +27,7 @@ Open http://localhost:3000 and verify:
 6. Resolve YES in Paper portfolio; realized P&L and free capital update.
 7. Stop/restart the backend; verify visible error, reconnect, and persisted trades.
 8. Check narrow/mobile layout and 200% zoom, then add a verified dashboard capture to the README.
+
+## Reproducible scenario evidence
+
+`make demo-report` captures all eight scan decisions, executes both eligible pairs, supplies mock resolutions, rejects a duplicate, and reloads the persisted ledger in an isolated SQLite database. See [DEMO_RESULTS.md](DEMO_RESULTS.md) and [demo-run.json](demo-run.json) for the recorded run. This is synthetic functional validation, not a historical backtest.

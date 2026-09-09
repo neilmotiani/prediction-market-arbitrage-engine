@@ -1,0 +1,1582 @@
+{
+  "captured_at": "2026-09-09T18:03:00.951110+00:00",
+  "mode": "mock",
+  "fixture_tick": 0,
+  "scope": "Deterministic synthetic books; real quant and paper-ledger code; isolated SQLite database; no venue orders",
+  "settings": {
+    "requested_size": 100,
+    "paper_capital": "10000",
+    "max_capital_per_opportunity": "100",
+    "max_capital_per_market": "500",
+    "fee_bps": "20",
+    "kalshi_fee_coefficient": "0.07",
+    "network_cost": "0.02",
+    "latency_buffer_bps": "10",
+    "min_net_edge": "0.005",
+    "min_liquidity": "20",
+    "max_slippage": "0.02"
+  },
+  "summary": {
+    "markets": 6,
+    "snapshots": 12,
+    "checks": 8,
+    "classifications": {
+      "rejected": 4,
+      "theoretical": 2,
+      "executable": 2
+    },
+    "paired_trades": 2,
+    "filled_orders": 4,
+    "starting_capital": "10000",
+    "capital_after_fills": "9807.39376",
+    "settled_simulation_pnl": "7.39376",
+    "ending_capital": "10007.39376",
+    "duplicate_execution": "Opportunity already consumed by a paper fill",
+    "ledger_restore": "passed"
+  },
+  "opportunities": [
+    {
+      "id": "41360e77-c935-40bd-b220-251e417a734e",
+      "market": "Fed rate below 4% on December 31, 2026?",
+      "market_keys": [
+        "polymarket:macro-rate"
+      ],
+      "venue": "polymarket",
+      "strategy_type": "complement",
+      "yes_price": "0.510",
+      "no_price": "0.510",
+      "gross_edge": "-0.020",
+      "estimated_fees": "0.00204",
+      "estimated_slippage": "0.000",
+      "execution_costs": "0.002412371134020618556701030928",
+      "net_edge": "-0.024452371134020618556701031",
+      "available_size": "97",
+      "requested_size": "100",
+      "expected_profit": "-2.371880000000000000000000007",
+      "timestamp": "2026-09-09T18:03:00.934018Z",
+      "execution_score": 0.0,
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold",
+      "estimates": [
+        {
+          "fill": {
+            "requested_size": "97",
+            "filled_size": "97",
+            "average_price": "0.510",
+            "notional": "49.470",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.510",
+                "size": "97"
+              }
+            ]
+          },
+          "fees": "0.09894",
+          "network_cost": "0.02",
+          "latency_reserve": "0.097",
+          "total_cost": "49.68594"
+        },
+        {
+          "fill": {
+            "requested_size": "97",
+            "filled_size": "97",
+            "average_price": "0.510",
+            "notional": "49.470",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.510",
+                "size": "97"
+              }
+            ]
+          },
+          "fees": "0.09894",
+          "network_cost": "0.02",
+          "latency_reserve": "0.097",
+          "total_cost": "49.68594"
+        }
+      ],
+      "snapshots": [
+        {
+          "venue": "polymarket",
+          "market_id": "macro-rate",
+          "title": "Fed rate below 4% on December 31, 2026?",
+          "outcome": "YES",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.498",
+              "size": "120"
+            },
+            {
+              "price": "0.491",
+              "size": "240"
+            },
+            {
+              "price": "0.484",
+              "size": "360"
+            },
+            {
+              "price": "0.477",
+              "size": "480"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.510",
+              "size": "120"
+            },
+            {
+              "price": "0.516",
+              "size": "240"
+            },
+            {
+              "price": "0.522",
+              "size": "360"
+            },
+            {
+              "price": "0.528",
+              "size": "480"
+            }
+          ],
+          "volume": "25000",
+          "resolution_key": "demo:macro-rate",
+          "fee_verified": true,
+          "best_bid": "0.498",
+          "best_ask": "0.510",
+          "liquidity": "626.400"
+        },
+        {
+          "venue": "polymarket",
+          "market_id": "macro-rate",
+          "title": "Fed rate below 4% on December 31, 2026?",
+          "outcome": "NO",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.498",
+              "size": "120"
+            },
+            {
+              "price": "0.491",
+              "size": "240"
+            },
+            {
+              "price": "0.484",
+              "size": "360"
+            },
+            {
+              "price": "0.477",
+              "size": "480"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.510",
+              "size": "120"
+            },
+            {
+              "price": "0.516",
+              "size": "240"
+            },
+            {
+              "price": "0.522",
+              "size": "360"
+            },
+            {
+              "price": "0.528",
+              "size": "480"
+            }
+          ],
+          "volume": "25000",
+          "resolution_key": "demo:macro-rate",
+          "fee_verified": true,
+          "best_bid": "0.498",
+          "best_ask": "0.510",
+          "liquidity": "626.400"
+        }
+      ]
+    },
+    {
+      "id": "3243a545-f740-4292-b5fc-ab61f9a6455f",
+      "market": "Bitcoin above $120,000 on December 31, 2026?",
+      "market_keys": [
+        "polymarket:btc-fees"
+      ],
+      "venue": "polymarket",
+      "strategy_type": "complement",
+      "yes_price": "0.495",
+      "no_price": "0.503",
+      "gross_edge": "0.002",
+      "estimated_fees": "0.001996",
+      "estimated_slippage": "0.000",
+      "execution_costs": "0.002404040404040404040404040404",
+      "net_edge": "-0.002400040404040404040404040",
+      "available_size": "99",
+      "requested_size": "100",
+      "expected_profit": "-0.237603999999999999999999960",
+      "timestamp": "2026-09-09T18:03:00.934169Z",
+      "execution_score": 0.0,
+      "status": "theoretical",
+      "rejection_reason": "net_edge_below_threshold",
+      "estimates": [
+        {
+          "fill": {
+            "requested_size": "99",
+            "filled_size": "99",
+            "average_price": "0.495",
+            "notional": "49.005",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.495",
+                "size": "99"
+              }
+            ]
+          },
+          "fees": "0.09801",
+          "network_cost": "0.02",
+          "latency_reserve": "0.099",
+          "total_cost": "49.22201"
+        },
+        {
+          "fill": {
+            "requested_size": "99",
+            "filled_size": "99",
+            "average_price": "0.503",
+            "notional": "49.797",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.503",
+                "size": "99"
+              }
+            ]
+          },
+          "fees": "0.099594",
+          "network_cost": "0.02",
+          "latency_reserve": "0.099",
+          "total_cost": "50.015594"
+        }
+      ],
+      "snapshots": [
+        {
+          "venue": "polymarket",
+          "market_id": "btc-fees",
+          "title": "Bitcoin above $120,000 on December 31, 2026?",
+          "outcome": "YES",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.483",
+              "size": "100"
+            },
+            {
+              "price": "0.476",
+              "size": "200"
+            },
+            {
+              "price": "0.469",
+              "size": "300"
+            },
+            {
+              "price": "0.462",
+              "size": "400"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.495",
+              "size": "100"
+            },
+            {
+              "price": "0.501",
+              "size": "200"
+            },
+            {
+              "price": "0.507",
+              "size": "300"
+            },
+            {
+              "price": "0.513",
+              "size": "400"
+            }
+          ],
+          "volume": "42500",
+          "resolution_key": "demo:btc-fees",
+          "fee_verified": true,
+          "best_bid": "0.483",
+          "best_ask": "0.495",
+          "liquidity": "507.000"
+        },
+        {
+          "venue": "polymarket",
+          "market_id": "btc-fees",
+          "title": "Bitcoin above $120,000 on December 31, 2026?",
+          "outcome": "NO",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.491",
+              "size": "100"
+            },
+            {
+              "price": "0.484",
+              "size": "200"
+            },
+            {
+              "price": "0.477",
+              "size": "300"
+            },
+            {
+              "price": "0.470",
+              "size": "400"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.503",
+              "size": "100"
+            },
+            {
+              "price": "0.509",
+              "size": "200"
+            },
+            {
+              "price": "0.515",
+              "size": "300"
+            },
+            {
+              "price": "0.521",
+              "size": "400"
+            }
+          ],
+          "volume": "42500",
+          "resolution_key": "demo:btc-fees",
+          "fee_verified": true,
+          "best_bid": "0.491",
+          "best_ask": "0.503",
+          "liquidity": "515.000"
+        }
+      ]
+    },
+    {
+      "id": "d64490c2-5c41-4fa2-9424-f2439607adc4",
+      "market": "Ethereum above $5,000 on December 31, 2026?",
+      "market_keys": [
+        "polymarket:eth-edge"
+      ],
+      "venue": "polymarket",
+      "strategy_type": "complement",
+      "yes_price": "0.450",
+      "no_price": "0.500",
+      "gross_edge": "0.050",
+      "estimated_fees": "0.0019024",
+      "estimated_slippage": "0.0012",
+      "execution_costs": "0.0024",
+      "net_edge": "0.0444976",
+      "available_size": "100",
+      "requested_size": "100",
+      "expected_profit": "4.4497600",
+      "timestamp": "2026-09-09T18:03:00.934253Z",
+      "execution_score": 0.999,
+      "status": "executable",
+      "rejection_reason": null,
+      "estimates": [
+        {
+          "fill": {
+            "requested_size": "100",
+            "filled_size": "100",
+            "average_price": "0.4506",
+            "notional": "45.060",
+            "slippage": "0.0006",
+            "levels": [
+              {
+                "price": "0.450",
+                "size": "90"
+              },
+              {
+                "price": "0.456",
+                "size": "10"
+              }
+            ]
+          },
+          "fees": "0.09012",
+          "network_cost": "0.02",
+          "latency_reserve": "0.1",
+          "total_cost": "45.27012"
+        },
+        {
+          "fill": {
+            "requested_size": "100",
+            "filled_size": "100",
+            "average_price": "0.5006",
+            "notional": "50.060",
+            "slippage": "0.0006",
+            "levels": [
+              {
+                "price": "0.500",
+                "size": "90"
+              },
+              {
+                "price": "0.506",
+                "size": "10"
+              }
+            ]
+          },
+          "fees": "0.10012",
+          "network_cost": "0.02",
+          "latency_reserve": "0.1",
+          "total_cost": "50.28012"
+        }
+      ],
+      "snapshots": [
+        {
+          "venue": "polymarket",
+          "market_id": "eth-edge",
+          "title": "Ethereum above $5,000 on December 31, 2026?",
+          "outcome": "YES",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.438",
+              "size": "90"
+            },
+            {
+              "price": "0.431",
+              "size": "180"
+            },
+            {
+              "price": "0.424",
+              "size": "270"
+            },
+            {
+              "price": "0.417",
+              "size": "360"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.450",
+              "size": "90"
+            },
+            {
+              "price": "0.456",
+              "size": "180"
+            },
+            {
+              "price": "0.462",
+              "size": "270"
+            },
+            {
+              "price": "0.468",
+              "size": "360"
+            }
+          ],
+          "volume": "60000",
+          "resolution_key": "demo:eth-edge",
+          "fee_verified": true,
+          "best_bid": "0.438",
+          "best_ask": "0.450",
+          "liquidity": "415.800"
+        },
+        {
+          "venue": "polymarket",
+          "market_id": "eth-edge",
+          "title": "Ethereum above $5,000 on December 31, 2026?",
+          "outcome": "NO",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.488",
+              "size": "90"
+            },
+            {
+              "price": "0.481",
+              "size": "180"
+            },
+            {
+              "price": "0.474",
+              "size": "270"
+            },
+            {
+              "price": "0.467",
+              "size": "360"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.500",
+              "size": "90"
+            },
+            {
+              "price": "0.506",
+              "size": "180"
+            },
+            {
+              "price": "0.512",
+              "size": "270"
+            },
+            {
+              "price": "0.518",
+              "size": "360"
+            }
+          ],
+          "volume": "60000",
+          "resolution_key": "demo:eth-edge",
+          "fee_verified": true,
+          "best_bid": "0.488",
+          "best_ask": "0.500",
+          "liquidity": "460.800"
+        }
+      ]
+    },
+    {
+      "id": "dfcfbc27-d828-4f00-a503-af46702bcc9d",
+      "market": "US real GDP growth above 2% in 2026?",
+      "market_keys": [
+        "polymarket:growth-thin"
+      ],
+      "venue": "polymarket",
+      "strategy_type": "complement",
+      "yes_price": "0.440",
+      "no_price": "0.490",
+      "gross_edge": "0.070",
+      "estimated_fees": "0",
+      "estimated_slippage": "0",
+      "execution_costs": "0",
+      "net_edge": null,
+      "available_size": "20",
+      "requested_size": "100",
+      "expected_profit": null,
+      "timestamp": "2026-09-09T18:03:00.934346Z",
+      "execution_score": 0.0,
+      "status": "theoretical",
+      "rejection_reason": "insufficient_depth; minimum_liquidity",
+      "estimates": [
+        {
+          "fill": {
+            "requested_size": "100",
+            "filled_size": "20",
+            "average_price": "0.452",
+            "notional": "9.040",
+            "slippage": "0.012",
+            "levels": [
+              {
+                "price": "0.440",
+                "size": "2"
+              },
+              {
+                "price": "0.446",
+                "size": "4"
+              },
+              {
+                "price": "0.452",
+                "size": "6"
+              },
+              {
+                "price": "0.458",
+                "size": "8"
+              }
+            ]
+          },
+          "fees": "0.01808",
+          "network_cost": "0.02",
+          "latency_reserve": "0.02",
+          "total_cost": "9.09808"
+        },
+        {
+          "fill": {
+            "requested_size": "100",
+            "filled_size": "20",
+            "average_price": "0.502",
+            "notional": "10.040",
+            "slippage": "0.012",
+            "levels": [
+              {
+                "price": "0.490",
+                "size": "2"
+              },
+              {
+                "price": "0.496",
+                "size": "4"
+              },
+              {
+                "price": "0.502",
+                "size": "6"
+              },
+              {
+                "price": "0.508",
+                "size": "8"
+              }
+            ]
+          },
+          "fees": "0.02008",
+          "network_cost": "0.02",
+          "latency_reserve": "0.02",
+          "total_cost": "10.10008"
+        }
+      ],
+      "snapshots": [
+        {
+          "venue": "polymarket",
+          "market_id": "growth-thin",
+          "title": "US real GDP growth above 2% in 2026?",
+          "outcome": "YES",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.428",
+              "size": "2"
+            },
+            {
+              "price": "0.421",
+              "size": "4"
+            },
+            {
+              "price": "0.414",
+              "size": "6"
+            },
+            {
+              "price": "0.407",
+              "size": "8"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.440",
+              "size": "2"
+            },
+            {
+              "price": "0.446",
+              "size": "4"
+            },
+            {
+              "price": "0.452",
+              "size": "6"
+            },
+            {
+              "price": "0.458",
+              "size": "8"
+            }
+          ],
+          "volume": "77500",
+          "resolution_key": "demo:growth-thin",
+          "fee_verified": true,
+          "best_bid": "0.428",
+          "best_ask": "0.440",
+          "liquidity": "9.040"
+        },
+        {
+          "venue": "polymarket",
+          "market_id": "growth-thin",
+          "title": "US real GDP growth above 2% in 2026?",
+          "outcome": "NO",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.478",
+              "size": "2"
+            },
+            {
+              "price": "0.471",
+              "size": "4"
+            },
+            {
+              "price": "0.464",
+              "size": "6"
+            },
+            {
+              "price": "0.457",
+              "size": "8"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.490",
+              "size": "2"
+            },
+            {
+              "price": "0.496",
+              "size": "4"
+            },
+            {
+              "price": "0.502",
+              "size": "6"
+            },
+            {
+              "price": "0.508",
+              "size": "8"
+            }
+          ],
+          "volume": "77500",
+          "resolution_key": "demo:growth-thin",
+          "fee_verified": true,
+          "best_bid": "0.478",
+          "best_ask": "0.490",
+          "liquidity": "10.040"
+        }
+      ]
+    },
+    {
+      "id": "95af3dcd-a879-43c0-a1c2-7803cd9ff45b",
+      "market": "US CPI below 3% for December 2026?",
+      "market_keys": [
+        "polymarket:inflation"
+      ],
+      "venue": "polymarket",
+      "strategy_type": "complement",
+      "yes_price": "0.430",
+      "no_price": "0.590",
+      "gross_edge": "-0.020",
+      "estimated_fees": "0.00204",
+      "estimated_slippage": "0.000",
+      "execution_costs": "0.002412371134020618556701030928",
+      "net_edge": "-0.024452371134020618556701031",
+      "available_size": "97",
+      "requested_size": "100",
+      "expected_profit": "-2.371880000000000000000000007",
+      "timestamp": "2026-09-09T18:03:00.934447Z",
+      "execution_score": 0.0,
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold",
+      "estimates": [
+        {
+          "fill": {
+            "requested_size": "97",
+            "filled_size": "97",
+            "average_price": "0.430",
+            "notional": "41.710",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.430",
+                "size": "97"
+              }
+            ]
+          },
+          "fees": "0.08342",
+          "network_cost": "0.02",
+          "latency_reserve": "0.097",
+          "total_cost": "41.91042"
+        },
+        {
+          "fill": {
+            "requested_size": "97",
+            "filled_size": "97",
+            "average_price": "0.590",
+            "notional": "57.230",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.590",
+                "size": "97"
+              }
+            ]
+          },
+          "fees": "0.11446",
+          "network_cost": "0.02",
+          "latency_reserve": "0.097",
+          "total_cost": "57.46146"
+        }
+      ],
+      "snapshots": [
+        {
+          "venue": "polymarket",
+          "market_id": "inflation",
+          "title": "US CPI below 3% for December 2026?",
+          "outcome": "YES",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.418",
+              "size": "150"
+            },
+            {
+              "price": "0.411",
+              "size": "300"
+            },
+            {
+              "price": "0.404",
+              "size": "450"
+            },
+            {
+              "price": "0.397",
+              "size": "600"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.430",
+              "size": "150"
+            },
+            {
+              "price": "0.436",
+              "size": "300"
+            },
+            {
+              "price": "0.442",
+              "size": "450"
+            },
+            {
+              "price": "0.448",
+              "size": "600"
+            }
+          ],
+          "volume": "95000",
+          "resolution_key": "demo:inflation",
+          "fee_verified": true,
+          "best_bid": "0.418",
+          "best_ask": "0.430",
+          "liquidity": "663.000"
+        },
+        {
+          "venue": "polymarket",
+          "market_id": "inflation",
+          "title": "US CPI below 3% for December 2026?",
+          "outcome": "NO",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.578",
+              "size": "150"
+            },
+            {
+              "price": "0.571",
+              "size": "300"
+            },
+            {
+              "price": "0.564",
+              "size": "450"
+            },
+            {
+              "price": "0.557",
+              "size": "600"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.590",
+              "size": "150"
+            },
+            {
+              "price": "0.596",
+              "size": "300"
+            },
+            {
+              "price": "0.602",
+              "size": "450"
+            },
+            {
+              "price": "0.608",
+              "size": "600"
+            }
+          ],
+          "volume": "95000",
+          "resolution_key": "demo:inflation",
+          "fee_verified": true,
+          "best_bid": "0.578",
+          "best_ask": "0.590",
+          "liquidity": "903.000"
+        }
+      ]
+    },
+    {
+      "id": "246e1fb5-d5cf-4a28-b65a-bfdbe191affc",
+      "market": "US CPI below 3% for December 2026?",
+      "market_keys": [
+        "polymarket:inflation",
+        "kalshi:inflation-k"
+      ],
+      "venue": "polymarket / kalshi",
+      "strategy_type": "cross_venue",
+      "yes_price": "0.430",
+      "no_price": "0.520",
+      "gross_edge": "0.050",
+      "estimated_fees": "0.01836",
+      "estimated_slippage": "0.000",
+      "execution_costs": "0.0022",
+      "net_edge": "0.02944",
+      "available_size": "100",
+      "requested_size": "100",
+      "expected_profit": "2.94400",
+      "timestamp": "2026-09-09T18:03:00.934520Z",
+      "execution_score": 0.999,
+      "status": "executable",
+      "rejection_reason": null,
+      "estimates": [
+        {
+          "fill": {
+            "requested_size": "100",
+            "filled_size": "100",
+            "average_price": "0.430",
+            "notional": "43.000",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.430",
+                "size": "100"
+              }
+            ]
+          },
+          "fees": "0.086",
+          "network_cost": "0.02",
+          "latency_reserve": "0.1",
+          "total_cost": "43.206"
+        },
+        {
+          "fill": {
+            "requested_size": "100",
+            "filled_size": "100",
+            "average_price": "0.520",
+            "notional": "52.000",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.520",
+                "size": "100"
+              }
+            ]
+          },
+          "fees": "1.75",
+          "network_cost": "0",
+          "latency_reserve": "0.1",
+          "total_cost": "53.850"
+        }
+      ],
+      "snapshots": [
+        {
+          "venue": "polymarket",
+          "market_id": "inflation",
+          "title": "US CPI below 3% for December 2026?",
+          "outcome": "YES",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.418",
+              "size": "150"
+            },
+            {
+              "price": "0.411",
+              "size": "300"
+            },
+            {
+              "price": "0.404",
+              "size": "450"
+            },
+            {
+              "price": "0.397",
+              "size": "600"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.430",
+              "size": "150"
+            },
+            {
+              "price": "0.436",
+              "size": "300"
+            },
+            {
+              "price": "0.442",
+              "size": "450"
+            },
+            {
+              "price": "0.448",
+              "size": "600"
+            }
+          ],
+          "volume": "95000",
+          "resolution_key": "demo:inflation",
+          "fee_verified": true,
+          "best_bid": "0.418",
+          "best_ask": "0.430",
+          "liquidity": "663.000"
+        },
+        {
+          "venue": "kalshi",
+          "market_id": "inflation-k",
+          "title": "US CPI below 3% for December 2026?",
+          "outcome": "NO",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.510",
+              "size": "200"
+            },
+            {
+              "price": "0.505",
+              "size": "200"
+            },
+            {
+              "price": "0.500",
+              "size": "200"
+            },
+            {
+              "price": "0.495",
+              "size": "200"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.520",
+              "size": "150"
+            },
+            {
+              "price": "0.525",
+              "size": "300"
+            },
+            {
+              "price": "0.530",
+              "size": "450"
+            },
+            {
+              "price": "0.535",
+              "size": "600"
+            }
+          ],
+          "volume": "90000",
+          "resolution_key": "demo:inflation",
+          "fee_verified": true,
+          "best_bid": "0.510",
+          "best_ask": "0.520",
+          "liquidity": "795.000"
+        }
+      ]
+    },
+    {
+      "id": "641cec2e-4ccb-4e0a-9699-45828f5c7510",
+      "market": "US CPI below 3% for December 2026?",
+      "market_keys": [
+        "kalshi:inflation-k",
+        "polymarket:inflation"
+      ],
+      "venue": "kalshi / polymarket",
+      "strategy_type": "cross_venue",
+      "yes_price": "0.500",
+      "no_price": "0.590",
+      "gross_edge": "-0.090",
+      "estimated_fees": "0.01873555555555555555555555556",
+      "estimated_slippage": "0.000",
+      "execution_costs": "0.002222222222222222222222222222",
+      "net_edge": "-0.110957777777777777777777778",
+      "available_size": "90",
+      "requested_size": "100",
+      "expected_profit": "-9.986200000000000000000000020",
+      "timestamp": "2026-09-09T18:03:00.934601Z",
+      "execution_score": 0.0,
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold",
+      "estimates": [
+        {
+          "fill": {
+            "requested_size": "90",
+            "filled_size": "90",
+            "average_price": "0.500",
+            "notional": "45.000",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.500",
+                "size": "90"
+              }
+            ]
+          },
+          "fees": "1.58",
+          "network_cost": "0",
+          "latency_reserve": "0.09",
+          "total_cost": "46.670"
+        },
+        {
+          "fill": {
+            "requested_size": "90",
+            "filled_size": "90",
+            "average_price": "0.590",
+            "notional": "53.100",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.590",
+                "size": "90"
+              }
+            ]
+          },
+          "fees": "0.1062",
+          "network_cost": "0.02",
+          "latency_reserve": "0.09",
+          "total_cost": "53.3162"
+        }
+      ],
+      "snapshots": [
+        {
+          "venue": "kalshi",
+          "market_id": "inflation-k",
+          "title": "US CPI below 3% for December 2026?",
+          "outcome": "YES",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.490",
+              "size": "200"
+            },
+            {
+              "price": "0.485",
+              "size": "200"
+            },
+            {
+              "price": "0.480",
+              "size": "200"
+            },
+            {
+              "price": "0.475",
+              "size": "200"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.500",
+              "size": "150"
+            },
+            {
+              "price": "0.505",
+              "size": "300"
+            },
+            {
+              "price": "0.510",
+              "size": "450"
+            },
+            {
+              "price": "0.515",
+              "size": "600"
+            }
+          ],
+          "volume": "90000",
+          "resolution_key": "demo:inflation",
+          "fee_verified": true,
+          "best_bid": "0.490",
+          "best_ask": "0.500",
+          "liquidity": "765.000"
+        },
+        {
+          "venue": "polymarket",
+          "market_id": "inflation",
+          "title": "US CPI below 3% for December 2026?",
+          "outcome": "NO",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.578",
+              "size": "150"
+            },
+            {
+              "price": "0.571",
+              "size": "300"
+            },
+            {
+              "price": "0.564",
+              "size": "450"
+            },
+            {
+              "price": "0.557",
+              "size": "600"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.590",
+              "size": "150"
+            },
+            {
+              "price": "0.596",
+              "size": "300"
+            },
+            {
+              "price": "0.602",
+              "size": "450"
+            },
+            {
+              "price": "0.608",
+              "size": "600"
+            }
+          ],
+          "volume": "95000",
+          "resolution_key": "demo:inflation",
+          "fee_verified": true,
+          "best_bid": "0.578",
+          "best_ask": "0.590",
+          "liquidity": "903.000"
+        }
+      ]
+    },
+    {
+      "id": "9bf33306-a8d6-42d6-848f-c4f9e813f549",
+      "market": "US CPI below 3% for December 2026?",
+      "market_keys": [
+        "kalshi:inflation-k"
+      ],
+      "venue": "kalshi",
+      "strategy_type": "complement",
+      "yes_price": "0.500",
+      "no_price": "0.520",
+      "gross_edge": "-0.020",
+      "estimated_fees": "0.03510638297872340425531914894",
+      "estimated_slippage": "0.000",
+      "execution_costs": "0.002",
+      "net_edge": "-0.057106382978723404255319149",
+      "available_size": "94",
+      "requested_size": "100",
+      "expected_profit": "-5.368000000000000000000000006",
+      "timestamp": "2026-09-09T18:03:00.934672Z",
+      "execution_score": 0.0,
+      "status": "rejected",
+      "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold",
+      "estimates": [
+        {
+          "fill": {
+            "requested_size": "94",
+            "filled_size": "94",
+            "average_price": "0.500",
+            "notional": "47.000",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.500",
+                "size": "94"
+              }
+            ]
+          },
+          "fees": "1.65",
+          "network_cost": "0",
+          "latency_reserve": "0.094",
+          "total_cost": "48.744"
+        },
+        {
+          "fill": {
+            "requested_size": "94",
+            "filled_size": "94",
+            "average_price": "0.520",
+            "notional": "48.880",
+            "slippage": "0.000",
+            "levels": [
+              {
+                "price": "0.520",
+                "size": "94"
+              }
+            ]
+          },
+          "fees": "1.65",
+          "network_cost": "0",
+          "latency_reserve": "0.094",
+          "total_cost": "50.624"
+        }
+      ],
+      "snapshots": [
+        {
+          "venue": "kalshi",
+          "market_id": "inflation-k",
+          "title": "US CPI below 3% for December 2026?",
+          "outcome": "YES",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.490",
+              "size": "200"
+            },
+            {
+              "price": "0.485",
+              "size": "200"
+            },
+            {
+              "price": "0.480",
+              "size": "200"
+            },
+            {
+              "price": "0.475",
+              "size": "200"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.500",
+              "size": "150"
+            },
+            {
+              "price": "0.505",
+              "size": "300"
+            },
+            {
+              "price": "0.510",
+              "size": "450"
+            },
+            {
+              "price": "0.515",
+              "size": "600"
+            }
+          ],
+          "volume": "90000",
+          "resolution_key": "demo:inflation",
+          "fee_verified": true,
+          "best_bid": "0.490",
+          "best_ask": "0.500",
+          "liquidity": "765.000"
+        },
+        {
+          "venue": "kalshi",
+          "market_id": "inflation-k",
+          "title": "US CPI below 3% for December 2026?",
+          "outcome": "NO",
+          "timestamp": "2026-09-09T18:03:00.932240Z",
+          "received_at": "2026-09-09T18:03:00.932240Z",
+          "timestamp_source": "synthetic",
+          "bids": [
+            {
+              "price": "0.510",
+              "size": "200"
+            },
+            {
+              "price": "0.505",
+              "size": "200"
+            },
+            {
+              "price": "0.500",
+              "size": "200"
+            },
+            {
+              "price": "0.495",
+              "size": "200"
+            }
+          ],
+          "asks": [
+            {
+              "price": "0.520",
+              "size": "150"
+            },
+            {
+              "price": "0.525",
+              "size": "300"
+            },
+            {
+              "price": "0.530",
+              "size": "450"
+            },
+            {
+              "price": "0.535",
+              "size": "600"
+            }
+          ],
+          "volume": "90000",
+          "resolution_key": "demo:inflation",
+          "fee_verified": true,
+          "best_bid": "0.510",
+          "best_ask": "0.520",
+          "liquidity": "795.000"
+        }
+      ]
+    }
+  ],
+  "trades": [
+    {
+      "id": "19ae7475-4306-4595-8e0f-18379dcea733",
+      "opportunity_id": "d64490c2-5c41-4fa2-9424-f2439607adc4",
+      "timestamp": "2026-09-09T18:03:00.946759+00:00",
+      "market": "Ethereum above $5,000 on December 31, 2026?",
+      "market_keys": [
+        "polymarket:eth-edge"
+      ],
+      "strategy_type": "complement",
+      "venue": "polymarket",
+      "quantity": "100",
+      "total_cost": "95.55024",
+      "expected_pnl": "4.44976",
+      "realized_pnl": "4.44976",
+      "status": "settled",
+      "book_fingerprints": [
+        "polymarket:eth-edge:YES:2026-09-09T18:03:00.932240+00:00",
+        "polymarket:eth-edge:NO:2026-09-09T18:03:00.932240+00:00"
+      ],
+      "orders": [
+        {
+          "id": "d8695a61-87a8-4681-9be5-f1fcd4dcce82",
+          "market_key": "polymarket:eth-edge",
+          "outcome": "YES",
+          "side": "buy",
+          "status": "filled",
+          "quantity": "100",
+          "estimate": {
+            "fill": {
+              "requested_size": "100",
+              "filled_size": "100",
+              "average_price": "0.4506",
+              "notional": "45.060",
+              "slippage": "0.0006",
+              "levels": [
+                {
+                  "price": "0.450",
+                  "size": "90"
+                },
+                {
+                  "price": "0.456",
+                  "size": "10"
+                }
+              ]
+            },
+            "fees": "0.09012",
+            "network_cost": "0.02",
+            "latency_reserve": "0.1",
+            "total_cost": "45.27012"
+          }
+        },
+        {
+          "id": "51fe588e-4787-4df3-b25a-35e601540a96",
+          "market_key": "polymarket:eth-edge",
+          "outcome": "NO",
+          "side": "buy",
+          "status": "filled",
+          "quantity": "100",
+          "estimate": {
+            "fill": {
+              "requested_size": "100",
+              "filled_size": "100",
+              "average_price": "0.5006",
+              "notional": "50.060",
+              "slippage": "0.0006",
+              "levels": [
+                {
+                  "price": "0.500",
+                  "size": "90"
+                },
+                {
+                  "price": "0.506",
+                  "size": "10"
+                }
+              ]
+            },
+            "fees": "0.10012",
+            "network_cost": "0.02",
+            "latency_reserve": "0.1",
+            "total_cost": "50.28012"
+          }
+        }
+      ],
+      "resolutions": {
+        "polymarket:eth-edge": "YES"
+      },
+      "settled_at": "2026-09-09T18:03:00.948403+00:00"
+    },
+    {
+      "id": "825686ac-2070-4b49-837e-b6488b109dee",
+      "opportunity_id": "246e1fb5-d5cf-4a28-b65a-bfdbe191affc",
+      "timestamp": "2026-09-09T18:03:00.947765+00:00",
+      "market": "US CPI below 3% for December 2026?",
+      "market_keys": [
+        "polymarket:inflation",
+        "kalshi:inflation-k"
+      ],
+      "strategy_type": "cross_venue",
+      "venue": "polymarket / kalshi",
+      "quantity": "100",
+      "total_cost": "97.056",
+      "expected_pnl": "2.944",
+      "realized_pnl": "2.944",
+      "status": "settled",
+      "book_fingerprints": [
+        "polymarket:inflation:YES:2026-09-09T18:03:00.932240+00:00",
+        "kalshi:inflation-k:NO:2026-09-09T18:03:00.932240+00:00"
+      ],
+      "orders": [
+        {
+          "id": "14c158f4-b2b2-45dd-9946-b294033f55bb",
+          "market_key": "polymarket:inflation",
+          "outcome": "YES",
+          "side": "buy",
+          "status": "filled",
+          "quantity": "100",
+          "estimate": {
+            "fill": {
+              "requested_size": "100",
+              "filled_size": "100",
+              "average_price": "0.430",
+              "notional": "43.000",
+              "slippage": "0.000",
+              "levels": [
+                {
+                  "price": "0.430",
+                  "size": "100"
+                }
+              ]
+            },
+            "fees": "0.086",
+            "network_cost": "0.02",
+            "latency_reserve": "0.1",
+            "total_cost": "43.206"
+          }
+        },
+        {
+          "id": "39cca55b-4349-40bb-8152-ed4202e12767",
+          "market_key": "kalshi:inflation-k",
+          "outcome": "NO",
+          "side": "buy",
+          "status": "filled",
+          "quantity": "100",
+          "estimate": {
+            "fill": {
+              "requested_size": "100",
+              "filled_size": "100",
+              "average_price": "0.520",
+              "notional": "52.000",
+              "slippage": "0.000",
+              "levels": [
+                {
+                  "price": "0.520",
+                  "size": "100"
+                }
+              ]
+            },
+            "fees": "1.75",
+            "network_cost": "0",
+            "latency_reserve": "0.1",
+            "total_cost": "53.850"
+          }
+        }
+      ],
+      "resolutions": {
+        "polymarket:inflation": "YES",
+        "kalshi:inflation-k": "YES"
+      },
+      "settled_at": "2026-09-09T18:03:00.949694+00:00"
+    }
+  ],
+  "engine_source_revision": "f90f186ef7166640a2f21ba2686aadb994d264b5"
+}
