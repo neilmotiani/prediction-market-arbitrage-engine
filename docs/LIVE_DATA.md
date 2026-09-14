@@ -21,11 +21,11 @@ The two workspaces use the same local ports and run one at a time. Containers re
 
 ## Discovery and ingestion
 
-The live preset discovers up to 12 ordinary binary Polymarket contracts from the 100 markets ranked by reported 24-hour volume. Every five minutes it refreshes that universe. It requires explicit active/open/order-book-enabled status, distinct YES/NO tokens, and excludes negative-risk markets. Each candidate is checked against the CLOB condition ID, token identities, order acceptance, and minimum order size. This is a sampled universe, not coverage of the entire venue.
+The live preset targets 60 ordinary binary Polymarket contracts from five pages of 100 markets ranked by reported 24-hour volume. Every five minutes it refreshes that universe, with at most two contracts per event. It requires explicit active/open/order-book-enabled status, distinct YES/NO tokens, and excludes negative-risk markets and contracts past their scheduled end. Each candidate is checked against the CLOB condition ID, token identities, order acceptance, and minimum order size. This is a sampled universe, not coverage of the entire venue.
 
-Full public REST books refresh approximately every three seconds plus request/processing time, with bounded HTTP connections. A failed pair is omitted without discarding other valid pairs; complete feed failure triggers exponential backoff. Venue timestamps are preserved. A fresh HTTP response does **not** reset an old quote's timestamp. Stale or asynchronous legs remain blocked. Old universe entries expire from the in-memory monitor after ten minutes without updates; raw historical books and scan records have 24-hour retention.
+Discovered tokens subscribe to public WebSocket market events. Changed markets coalesce into paired `/books` REST refreshes, no faster than `LIVE_REFRESH_INTERVAL` (default 0.5 seconds), with bounded requests. Full-universe refreshes continue approximately every three seconds plus request/processing time. A failed pair is omitted without discarding other valid pairs; complete feed failure triggers backoff. Positive gross pairs receive a second complete read. Venue timestamps are preserved, and older updates cannot overwrite newer books. A fresh HTTP response does **not** reset an old quote's timestamp. Stale or asynchronous legs remain blocked. Old universe entries expire from the in-memory monitor after ten minutes without updates; raw historical books and scan records have 24-hour retention.
 
-The configured-token adapter still supports WebSocket-triggered full REST refreshes. Automatic discovery deliberately uses periodic REST, avoiding unsafe reconstruction from missed book deltas. The dashboard receives updates over the application's WebSocket in either case.
+The configured-token adapter also supports WebSocket-triggered full REST refreshes. REST polling remains active while the discovery socket reconnects. The system does not reconstruct authoritative depth from unsequenced deltas. The dashboard receives updates over the application's separate WebSocket. Connection diagnostics show both transports.
 
 ## Market-specific costs
 
@@ -38,6 +38,8 @@ Sources: [market metadata](https://docs.polymarket.com/market-data/market-detail
 ## Automatic paper execution and settlement
 
 After each scan, executable pairs are ranked by expected dollar profit and revalidated under the execution lock against current books, available cash, and market exposure. Defaults are $10,000 research capital, $100 maximum per pair, $500 per market, and a $0.005 minimum net edge per paired share. The live preset enables automatic simulation; `AUTO_PAPER_TRADE=false` retains manual execution when configured outside the preset.
+
+The live preset uses `SIZING_POLICY=profit`: requested size is a maximum, not a mandatory full order. The engine selects the fully fillable integer quantity with the highest modeled dollar profit that passes all sizing constraints. The default request caps this search at 100 shares. It does not lower fees or risk thresholds to obtain a trade. The dashboard execution funnel explains which checks are failing; [the profitability investigation](PROFITABILITY_REVIEW.md) documents the rationale and measured results.
 
 Book fingerprints use normalized ask prices and quantities, not receipt times. An identical previously consumed book cannot be reused, even after a restart. A 60-second per-market cooldown additionally limits repeated fills on changing books. These are conservative liquidity safeguards, not a market-impact model. Paired execution remains an atomic simulation; no live orders are submitted.
 

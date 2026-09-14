@@ -31,6 +31,26 @@ export function SystemHealth({
                 : "Waiting for first batch"}
             </p>
             {c.error && <code>{c.error}</code>}
+            {c.diagnostics && (
+              <>
+                <p>
+                  Feed:{" "}
+                  {String(c.diagnostics.transport ?? "—").replaceAll("_", " ")}
+                </p>
+                <p>
+                  {c.diagnostics.selected_markets ?? "—"} markets across{" "}
+                  {c.diagnostics.selected_events ?? "—"} events
+                </p>
+                <p>
+                  {c.diagnostics.discovery_rows ?? "—"} discovery rows ·{" "}
+                  {c.diagnostics.ws_events ?? 0} venue events
+                </p>
+                <p>
+                  {c.diagnostics.book_errors ?? 0} book errors ·{" "}
+                  {c.diagnostics.ws_reconnects ?? 0} socket reconnects
+                </p>
+              </>
+            )}
           </div>
         ))}
         {!Object.keys(metrics?.connections || {}).length && (
@@ -50,6 +70,8 @@ export function SystemHealth({
           ],
           ["Arbitrage checks", metrics?.checks_total],
           ["Rejected checks", metrics?.rejected_opportunities],
+          ["Positive net checks (session)", metrics?.positive_net_checks_total],
+          ["Sizing policy", metrics?.sizing_policy],
           ["Data age on receipt", `${metrics?.data_latency_ms ?? "—"} ms`],
           ["Last scan latency", `${metrics?.detection_latency_ms ?? "—"} ms`],
           ["Connector / ingestion errors", metrics?.api_errors],

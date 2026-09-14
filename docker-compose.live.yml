@@ -14,7 +14,12 @@ services:
       MODE: live
       DATABASE_URL: postgresql+asyncpg://research:research@db:5432/arbitrage_live
       LIVE_AUTO_DISCOVER: "true"
-      LIVE_MARKET_LIMIT: "12"
+      LIVE_MARKET_LIMIT: ${LIVE_MARKET_LIMIT:-60}
+      LIVE_DISCOVERY_PAGES: ${LIVE_DISCOVERY_PAGES:-5}
+      LIVE_EVENT_MARKET_LIMIT: ${LIVE_EVENT_MARKET_LIMIT:-2}
+      LIVE_REFRESH_INTERVAL: ${LIVE_REFRESH_INTERVAL:-0.5}
+      POLYMARKET_WEBSOCKET: "true"
+      SIZING_POLICY: profit
       AUTO_PAPER_TRADE: "true"
       POLYMARKET_TOKEN_PAIRS: "[]"
       KALSHI_TICKERS: "[]"

@@ -15,6 +15,7 @@ import {
 import { Sidebar } from "@/components/sidebar";
 import { TradeTable } from "@/components/trade-table";
 import { SystemHealth } from "@/components/system-health";
+import { ScanDiagnostics } from "@/components/scan-diagnostics";
 import { OpportunityTable } from "@/components/opportunity-table";
 import { DepthChart, PriceChart } from "@/components/charts";
 import { OpportunityDrawer } from "@/components/opportunity-drawer";
@@ -297,6 +298,9 @@ export default function Dashboard() {
           </section>
           {view === "overview" && (
             <>
+              {metrics?.mode === "live" && (
+                <ScanDiagnostics metrics={metrics} />
+              )}
               <OpportunityTable
                 ops={ops}
                 metrics={metrics}

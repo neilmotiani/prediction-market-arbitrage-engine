@@ -31,7 +31,11 @@ class Settings(BaseSettings):
     kalshi_resolution_keys: dict[str, str] = {}
     polymarket_websocket: bool = True
     live_auto_discover: bool = False
-    live_market_limit: int = Field(default=12, ge=1, le=50)
+    live_market_limit: int = Field(default=60, ge=1, le=200)
+    live_discovery_pages: int = Field(default=5, ge=1, le=20)
+    live_event_market_limit: int = Field(default=2, ge=1, le=20)
+    live_refresh_interval: float = Field(default=0.5, ge=0.1)
+    sizing_policy: Literal["requested", "profit"] = "requested"
     live_discovery_interval: float = Field(default=300, ge=30)
     auto_paper_trade: bool = False
     live_paper_cooldown_seconds: float = Field(default=60, ge=1)

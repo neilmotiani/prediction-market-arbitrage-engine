@@ -1,0 +1,116 @@
+{
+  "observed_at": "2026-09-14T20:48:48.882417+00:00",
+  "duration_seconds": 60.12,
+  "method": "Read-only real-feed comparison; same risk/fee assumptions and uncommitted capital for both sizing policies. Counts are checks, not distinct trading episodes. No orders submitted.",
+  "settings": {
+    "mode": "live",
+    "poll_interval": 3.0,
+    "requested_size": 100,
+    "max_capital_per_opportunity": "100",
+    "max_capital_per_market": "500",
+    "paper_capital": "10000",
+    "min_net_edge": "0.005",
+    "min_liquidity": "20",
+    "max_slippage": "0.02",
+    "max_data_age_seconds": 15.0,
+    "max_leg_skew_seconds": 5.0,
+    "fee_bps": "20",
+    "kalshi_fee_coefficient": "0.07",
+    "network_cost": "0.02",
+    "latency_buffer_bps": "10",
+    "match_threshold": 0.85,
+    "polymarket_token_pairs": [],
+    "kalshi_tickers": [],
+    "kalshi_resolution_keys": {},
+    "polymarket_websocket": true,
+    "live_auto_discover": true,
+    "live_market_limit": 60,
+    "live_discovery_pages": 5,
+    "live_event_market_limit": 2,
+    "live_refresh_interval": 0.5,
+    "sizing_policy": "profit",
+    "live_discovery_interval": 300.0,
+    "auto_paper_trade": false,
+    "live_paper_cooldown_seconds": 60.0
+  },
+  "markets_observed": 60,
+  "counts": {
+    "batches": 70,
+    "snapshots": 3380,
+    "checks": 1690,
+    "positive_gross": 0,
+    "requested_policy_executable": 0,
+    "profit_policy_executable": 0
+  },
+  "connector": {
+    "transport": "websocket_triggered_rest",
+    "ws_events": 5269,
+    "book_errors": 0,
+    "discovery_rows": 500,
+    "discovery_unsupported": 372,
+    "discovery_eligible": 128,
+    "selected_markets": 60,
+    "selected_events": 45,
+    "book_refreshes": 70
+  },
+  "rejections": {
+    "no_theoretical_arbitrage": 1656,
+    "net_edge_below_threshold": 1656,
+    "stale_or_future_market_data": 175,
+    "slippage_limit": 108,
+    "missing_asks": 34
+  },
+  "latest_scan": {
+    "checks": 60,
+    "quoted_pairs": 58,
+    "positive_gross": 0,
+    "positive_net": 0,
+    "executable": 0,
+    "cross_venue_pairs": 0,
+    "rejection_reasons": {
+      "no_theoretical_arbitrage": 58,
+      "net_edge_below_threshold": 58,
+      "stale_or_future_market_data": 8,
+      "slippage_limit": 3,
+      "missing_asks": 2
+    },
+    "closest_pairs": [
+      {
+        "market": "Will China invade Taiwan by end of 2026?",
+        "gross_edge": "-0.001",
+        "net_edge": "-0.003404040404040404040404040404",
+        "size": "99",
+        "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+      },
+      {
+        "market": "Iran-Oman Hormuz Agreement by September 14?",
+        "gross_edge": "-0.001",
+        "net_edge": "-0.003404040404040404040404040404",
+        "size": "99",
+        "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+      },
+      {
+        "market": "Bab el-Mandeb Strait effectively closed by September 30?",
+        "gross_edge": "-0.001",
+        "net_edge": "-0.003404040404040404040404040404",
+        "size": "99",
+        "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+      },
+      {
+        "market": "Will the price of Bitcoin be above $70,000 on September 15?",
+        "gross_edge": "-0.001",
+        "net_edge": "-0.003624343434343434343434343434",
+        "size": "99",
+        "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+      },
+      {
+        "market": "Strait of Hormuz traffic returns to normal by September 30?",
+        "gross_edge": "-0.001",
+        "net_edge": "-0.003646464646464646464646464646",
+        "size": "99",
+        "rejection_reason": "no_theoretical_arbitrage; net_edge_below_threshold"
+      }
+    ]
+  },
+  "recovered_examples": []
+}

@@ -1,11 +1,11 @@
 # Validation record
 
-Local environment: macOS 15.4.1 arm64, Python 3.12.11, Node 22.19, Docker via OrbStack. Container builds use Python 3.12 and Node 22. Date: 2026-09-09.
+Local environment: macOS 15.4.1 arm64, Python 3.12.11, Node 22.19, Docker via OrbStack. Container builds use Python 3.12 and Node 22. Original validation: 2026-09-09. Latest update: 2026-09-14.
 
 ## Verified
 
-- 59 passing tests: quant, order-book, cost, matching, risk, adapter, API/WebSocket, persistence, paper settlement, concurrent execution, stale reads, and commit-failure rollback.
-- Backend statement coverage: 89% overall; arbitrage 97%, order book 96%, cost model and sizing 100%. Two upstream TestClient deprecation warnings are present.
+- 79 passing tests: quant, order-book, cost, matching, risk, adapter, API/WebSocket, persistence, paper settlement, concurrent execution, stale reads, commit-failure rollback, profit sizing, batch identity, discovery diversity, incremental pair removal, and disconnected-socket REST fallback.
+- Backend statement coverage: 89% overall; arbitrage 98%, order book 96%, execution model 100%, sizing 92%. Two upstream TestClient deprecation warnings are present.
 - Ruff lint/format, ESLint, TypeScript, Prettier, and Next.js production compilation.
 - `docker compose up --build -d --wait --wait-timeout 180`: PostgreSQL, backend, and frontend started successfully.
 - PostgreSQL retained the initial smoke-test trade through the final backend container replacement; both smoke-test settlements were present in SQL.
@@ -35,3 +35,5 @@ Open http://localhost:3000 and verify:
 ## Live paper workspace
 
 The live Compose override built and started successfully with an isolated PostgreSQL volume. `scripts/live_report.py` verified 12 discovered Polymarket markets, 24 non-synthetic books with fee metadata, increasing counters, an application WebSocket update, and dashboard HTTP 200. See [LIVE_RUN.md](LIVE_RUN.md). New offline tests cover fee share deductions, live fee freshness, discovery validation, automatic paper execution, normalized-book deduplication, database mode isolation, and final venue settlement evidence.
+
+The September 14 build also passed `docker compose -f docker-compose.yml -f docker-compose.live.yml up --build -d --wait --wait-timeout 180`. Its API confirmed 60 markets, 120 books with fee metadata, profit sizing, active venue WebSocket-triggered refreshes, and rejection diagnostics. At a subsequent check the process had ingested 69,560 snapshots and performed 34,781 pair checks with zero connector/ingestion errors and zero positive gross checks. [Investigation and independent one-minute comparison](PROFITABILITY_REVIEW.md).

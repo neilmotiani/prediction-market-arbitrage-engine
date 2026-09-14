@@ -6,13 +6,15 @@ A full-stack quantitative engineering project built with **Python, FastAPI, Post
 
 [Live observation](docs/LIVE_RUN.md) · [Recorded demo](docs/DEMO_RESULTS.md) · [Architecture](ARCHITECTURE.md) · [Execution model](docs/EXECUTION_MODEL.md) · [Validation](docs/VALIDATION.md)
 
+**Live research update:** expanded discovery to 60 markets across 45 events, enabled venue WebSocket-triggered book refreshes, and added sizing that maximizes executable paper profit within risk limits. A one-minute public scan processed 3,380 snapshots and found no positive gross edge. [Why zero trades, what changed, and the evidence](docs/PROFITABILITY_REVIEW.md).
+
 ## Engineering results
 
 | Evidence | Measured result |
 | --- | --- |
 | Research-path throughput | **7,230 snapshots/s · 4,820 arbitrage checks/s** |
 | Detection latency | **0.077 ms p50 · 0.105 ms p95** per pair |
-| Automated verification | **59 passing tests · 89% backend statement coverage** |
+| Automated verification | **79 passing tests · 89% backend statement coverage** |
 | Full-stack integration | Docker Compose build/start, API data, paper fills, settlement, and PostgreSQL persistence verified |
 | Public data connectivity | Polymarket REST + WebSocket refresh and Kalshi REST smoke-tested |
 

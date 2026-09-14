@@ -78,6 +78,26 @@ export type Metrics = {
   auto_paper_fills: number;
   fee_verified_books: number;
   books_monitored: number;
+  venues_monitored?: string[];
+  sizing_policy?: string;
+  positive_net_checks_total?: number;
+  rejection_reasons_total?: Record<string, number>;
+  scan_diagnostics?: {
+    checks: number;
+    quoted_pairs: number;
+    positive_gross: number;
+    positive_net: number;
+    executable: number;
+    cross_venue_pairs: number;
+    rejection_reasons: Record<string, number>;
+    closest_pairs: {
+      market: string;
+      gross_edge: string;
+      net_edge: string | null;
+      size: string;
+      rejection_reason: string | null;
+    }[];
+  };
   markets_monitored: number;
   opportunities_detected: number;
   executable_opportunities: number;
@@ -95,6 +115,11 @@ export type Metrics = {
   last_update: string | null;
   connections: Record<
     string,
-    { state: string; error?: string; last_update?: string }
+    {
+      state: string;
+      error?: string;
+      last_update?: string;
+      diagnostics?: Record<string, string | number>;
+    }
   >;
 };

@@ -3,12 +3,14 @@
 import asyncio
 import json
 import logging
+from collections import Counter
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
 import httpx
 
-from app.schemas.domain import FeeSchedule
+from app.schemas.domain import FeeSchedule, now
 
 logger = logging.getLogger(__name__)
 GAMMA = "https://gamma-api.polymarket.com/markets"
@@ -20,6 +22,11 @@ def parse_market(raw: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("Market is not accepting orders")
     if raw.get("closed") is not False or raw.get("negRisk") is not False:
         raise ValueError("Only open ordinary binary markets are supported")
+    if (
+        raw.get("endDate")
+        and datetime.fromisoformat(raw["endDate"].replace("Z", "+00:00")) <= now()
+    ):
+        raise ValueError("Market has passed its scheduled end; exclude pending resolutions")
     outcomes = raw["outcomes"]
     tokens = raw["clobTokenIds"]
     outcomes = json.loads(outcomes) if isinstance(outcomes, str) else outcomes
@@ -42,27 +49,46 @@ def parse_market(raw: dict[str, Any]) -> dict[str, Any]:
         "no_token": str(tokens[labels.index("NO")]),
         "fee_schedule": fee,
         "volume": Decimal(str(raw.get("volume24hr") or 0)),
+        "event_id": str((raw.get("events") or [{}])[0].get("id") or raw["conditionId"]),
     }
 
 
-async def discover(client: httpx.AsyncClient, limit: int) -> list[dict[str, Any]]:
-    response = await client.get(
-        GAMMA,
-        params={
-            "active": "true",
-            "closed": "false",
-            "limit": 100,
-            "order": "volume24hr",
-            "ascending": "false",
-        },
-    )
-    response.raise_for_status()
-    candidates = []
-    for raw in response.json():
-        try:
-            candidates.append(parse_market(raw))
-        except (KeyError, ValueError, TypeError):
-            continue
+async def discover(
+    client: httpx.AsyncClient,
+    limit: int,
+    *,
+    pages: int = 1,
+    per_event: int = 2,
+    diagnostics: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    candidates: dict[str, dict[str, Any]] = {}
+    counts: Counter[str] = Counter()
+    # Pagination broadens coverage beyond the original single popularity page.
+    # Market IDs deduplicate records when the volume ranking moves during paging.
+    for page in range(pages):
+        response = await client.get(
+            GAMMA,
+            params={
+                "active": "true",
+                "closed": "false",
+                "limit": 100,
+                "offset": page * 100,
+                "order": "volume24hr",
+                "ascending": "false",
+            },
+        )
+        response.raise_for_status()
+        rows = response.json()
+        counts["discovery_rows"] += len(rows)
+        for raw in rows:
+            try:
+                pair = parse_market(raw)
+                candidates[pair["market_id"]] = pair
+            except (KeyError, ValueError, TypeError):
+                counts["discovery_unsupported"] += 1
+        if len(rows) < 100:
+            break
+    counts["discovery_eligible"] = len(candidates)
     semaphore = asyncio.Semaphore(4)
 
     async def validate(pair: dict[str, Any]) -> dict[str, Any] | None:
@@ -88,5 +114,21 @@ async def discover(client: httpx.AsyncClient, limit: int) -> list[dict[str, Any]
                 logger.warning("discovery_market_skipped", extra={"market": pair["market_id"]})
                 return None
 
-    validated = await asyncio.gather(*(validate(p) for p in candidates[: limit * 2]))
-    return [p for p in validated if p is not None][:limit]
+    selected: list[dict[str, Any]] = []
+    event_counts: Counter[str] = Counter()
+    pool = list(candidates.values())
+    for offset in range(0, len(pool), 20):
+        validated = await asyncio.gather(*(validate(p) for p in pool[offset : offset + 20]))
+        for pair in validated:
+            if pair is None:
+                counts["discovery_validation_failed"] += 1
+            elif event_counts[pair["event_id"]] < per_event and len(selected) < limit:
+                selected.append(pair)
+                event_counts[pair["event_id"]] += 1
+        if len(selected) == limit:
+            break
+    if diagnostics is not None:
+        diagnostics.update(counts)
+        diagnostics["selected_markets"] = len(selected)
+        diagnostics["selected_events"] = len(event_counts)
+    return selected

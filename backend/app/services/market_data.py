@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+from collections import Counter
 from collections.abc import Callable
 from datetime import timedelta
 from pathlib import Path
@@ -24,6 +25,7 @@ from app.models.entities import (
 from app.schemas.domain import ContractMapping, MarketSnapshot, Opportunity, now
 from app.services.arbitrage import ArbitrageEngine
 from app.services.contract_matching import ContractMatcher
+from app.services.diagnostics import scan_diagnostics
 from app.services.paper_trading import PaperExecutionProvider
 
 logger = logging.getLogger(__name__)
@@ -54,6 +56,9 @@ class ResearchRuntime:
         self.connections: dict[str, dict[str, Any]] = {}
         self.auto_paper_fills = 0
         self.auto_paper_skips = 0
+        self.rejection_counts: Counter[str] = Counter()
+        self.positive_net_checks = 0
+        self.out_of_order_books = 0
 
     async def start(self) -> None:
         await self.db.initialize()
@@ -154,7 +159,11 @@ class ResearchRuntime:
             try:
                 async for batch in connector.stream():
                     await self.ingest(batch)
-                    self.connections[name] = {"state": "connected", "last_update": self.last_update}
+                    self.connections[name] = {
+                        "state": "connected",
+                        "last_update": self.last_update,
+                        "diagnostics": getattr(connector, "diagnostics", {}),
+                    }
                     backoff = 1
                 raise RuntimeError("Market stream ended")
             except asyncio.CancelledError:
@@ -165,6 +174,7 @@ class ResearchRuntime:
                     "state": "error",
                     "error": type(exc).__name__,
                     "last_update": self.connections[name].get("last_update"),
+                    "diagnostics": getattr(connector, "diagnostics", {}),
                 }
                 logger.exception("connector_error", extra={"connector": name})
                 await asyncio.sleep(backoff)
@@ -175,6 +185,16 @@ class ResearchRuntime:
             raise ValueError("Empty market-data batch")
         async with self.lock:
             stamp = now()
+            accepted = []
+            for snapshot in batch:
+                previous = self.books.get(snapshot.book_key)
+                if previous is not None and snapshot.timestamp < previous.timestamp:
+                    self.out_of_order_books += 1
+                else:
+                    accepted.append(snapshot)
+            batch = accepted
+            if not batch:
+                return
             updated = {
                 k: s
                 for k, s in self.books.items()
@@ -182,9 +202,13 @@ class ResearchRuntime:
                 < self.settings.live_discovery_interval * 2
             }
             updated.update({s.book_key: s for s in batch})
+            affected_keys = {s.key for s in batch}
             start = perf_counter()
             ops = self.engine.scan(
-                list(updated.values()), self.paper.exposure, self.paper.free_capital
+                list(updated.values()),
+                self.paper.exposure,
+                self.paper.free_capital,
+                changed_keys=affected_keys,
             )
             detection = (perf_counter() - start) * 1000
             async with self.db.sessions() as session:
@@ -222,7 +246,13 @@ class ResearchRuntime:
                             )
                         )
                 await session.commit()
-            self.books, self.opportunities = updated, ops
+            retained = [
+                o
+                for o in self.opportunities
+                if not affected_keys.intersection(o.market_keys)
+                and all(s.book_key in updated for s in o.snapshots)
+            ]
+            self.books, self.opportunities = updated, retained + ops
             if self.settings.auto_paper_trade:
                 for op in sorted(ops, key=lambda o: o.expected_profit or 0, reverse=True):
                     if op.status == "executable":
@@ -235,6 +265,9 @@ class ResearchRuntime:
             self.updates += len(batch)
             self.checks += len(ops)
             self.found += sum(o.gross_edge > 0 for o in ops)
+            self.positive_net_checks += sum(o.net_edge is not None and o.net_edge > 0 for o in ops)
+            for op in ops:
+                self.rejection_counts.update(filter(None, (op.rejection_reason or "").split("; ")))
             self.rejected += sum(o.status != "executable" for o in ops)
             self.last_update = stamp.isoformat()
             self.detection_ms = detection
@@ -252,7 +285,7 @@ class ResearchRuntime:
             self.publish(
                 {
                     "type": "opportunities",
-                    "data": [o.model_dump(mode="json") for o in ops],
+                    "data": [o.model_dump(mode="json") for o in self.current_opportunities()],
                     "metrics": metrics,
                 }
             )
@@ -283,6 +316,7 @@ class ResearchRuntime:
 
     def metrics(self) -> dict[str, Any]:
         elapsed = max(perf_counter() - self.started, 0.001)
+        current = self.current_opportunities()
         connections = {}
         for name, conn in self.connections.items():
             state = dict(conn)
@@ -302,12 +336,16 @@ class ResearchRuntime:
             "auto_paper_skips": self.auto_paper_skips,
             "fee_verified_books": sum(s.fee_verified for s in self.books.values()),
             "books_monitored": len(self.books),
+            "venues_monitored": sorted({s.venue for s in self.books.values()}),
+            "sizing_policy": self.settings.sizing_policy,
+            "scan_diagnostics": scan_diagnostics(current),
+            "rejection_reasons_total": dict(self.rejection_counts.most_common()),
+            "positive_net_checks_total": self.positive_net_checks,
+            "out_of_order_books": self.out_of_order_books,
             "uptime_seconds": round(elapsed, 1),
             "markets_monitored": len({s.key for s in self.books.values()}),
             "opportunities_detected": sum(o.gross_edge > 0 for o in self.opportunities),
-            "executable_opportunities": sum(
-                o.status == "executable" for o in self.current_opportunities()
-            ),
+            "executable_opportunities": sum(o.status == "executable" for o in current),
             "snapshots_processed": self.updates,
             "checks_total": self.checks,
             "market_updates_per_second": round(self.updates / elapsed, 2),

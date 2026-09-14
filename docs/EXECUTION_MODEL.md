@@ -22,7 +22,7 @@ Integer-size binary search evaluates actual leg cost at each trial size. The bud
 
 After sizing, both books must fill the selected quantity. Minimum ask liquidity is **notional USD per leg**, not open interest or reported volume. Combined VWAP slippage must stay below the configured threshold. Default minimum net edge is $0.005 per paired share.
 
-This is an affordable-size policy, not an exhaustive profit-maximization solver. If the requested size exceeds depth, the engine exposes the available quantity and rejects incomplete pairing; it does not declare a smaller partial hedge executable. Optional Kelly-style sizing was omitted: a research Kelly calculation would require a defensible probability model and would be illustrative, not financial advice.
+`SIZING_POLICY=requested` preserves this affordable-size policy for the deterministic mock demo. If the requested size exceeds depth, it rejects incomplete pairing. The live preset uses `SIZING_POLICY=profit`: it searches fully paired integer sizes from the venue minimum through affordable net depth, capped by the request, and chooses the highest modeled dollar profit that passes edge and slippage limits. A smaller fully paired trade is different from accepting an unequal partial hedge. Fixed costs can make very small orders unprofitable; every candidate includes these costs. The search is linear in the bounded share range, so very large configured quantities increase CPU work. Optional Kelly-style sizing was omitted because it would require a defensible probability model.
 
 ## Paper ledger and settlement
 

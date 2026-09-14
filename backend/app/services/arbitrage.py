@@ -75,6 +75,15 @@ class ArbitrageEngine:
             exposure or {},
             self.settings.paper_capital if free_capital is None else free_capital,
         )
+        if self.settings.sizing_policy == "profit" and op.gross_edge > 0 and not reasons:
+            selected = self.sizer.profitable_size(
+                books,
+                q,
+                exposure or {},
+                self.settings.paper_capital if free_capital is None else free_capital,
+            )
+            if selected is not None:
+                size = selected
         if size <= 0:
             op.rejection_reason = "; ".join(reasons + ["capital_limit"])
             op.status = "theoretical" if op.gross_edge > 0 else "rejected"
@@ -93,8 +102,8 @@ class ArbitrageEngine:
             op.execution_costs = (
                 sum((e.network_cost + e.latency_reserve for e in estimates), ZERO) / size
             )
-            op.net_edge = ONE - sum((e.total_cost for e in estimates), ZERO) / size
-            op.expected_profit = size * op.net_edge
+            op.expected_profit = size - sum((e.total_cost for e in estimates), ZERO)
+            op.net_edge = op.expected_profit / size
             if op.net_edge < self.settings.min_net_edge:
                 reasons.append("net_edge_below_threshold")
             if op.estimated_slippage > self.settings.max_slippage:
@@ -118,6 +127,7 @@ class ArbitrageEngine:
         snapshots: list[MarketSnapshot],
         exposure: dict[str, Decimal] | None = None,
         free_capital: Decimal | None = None,
+        changed_keys: set[str] | None = None,
     ) -> list[Opportunity]:
         yeses = [s for s in snapshots if s.outcome == "YES"]
         nos = [s for s in snapshots if s.outcome == "NO"]
@@ -125,6 +135,7 @@ class ArbitrageEngine:
             (y, n)
             for y in yeses
             for n in nos
-            if y.key == n.key or (y.venue != n.venue and self.matcher.candidate(y, n))
+            if (changed_keys is None or y.key in changed_keys or n.key in changed_keys)
+            and (y.key == n.key or (y.venue != n.venue and self.matcher.candidate(y, n)))
         ]
         return [self.evaluate(y, n, exposure=exposure, free_capital=free_capital) for y, n in pairs]
